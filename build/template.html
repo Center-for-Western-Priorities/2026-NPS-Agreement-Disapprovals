@@ -19,7 +19,11 @@ __LEAFLET_CSS__
   --green:#78b43c; --orange:#d2781e; --orange-dk:#a75c13; --blue:#4398b5; --steel:#5a87a5;
   --wordmark:#465050; --gold:#96782d; --deep:#2f5b74;
   --bg:#f5f5f3; --surface:#ffffff; --surface-2:#efeee9; --rule:#e0ddd8;
-  --ink:#2a2a28; --ink-2:#5c5a55; --ink-3:#9a9590;
+  --ink:#2a2a28; --ink-2:#5c5a55; --ink-3:#6f6b64;
+  /* Text-safe variants. The brand green and steel fall below WCAG AA at body size
+     on a light background, so text and glyphs use these and the brand values stay
+     for fills, rules, and other non-text marks. */
+  --green-tx:#557f28; --link:#2f5b74;
   --land:#d9d6cf; --land-line:#c3bfb7;
   --bar:#1e2624;
   --sidebar-w:288px; --detail-w:360px;
@@ -38,7 +42,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
   display:flex;align-items:center;gap:12px}
 .mark{flex:0 0 auto;width:30px;height:30px;display:block}
 .bar h1{font-family:'Bitter',Georgia,serif;font-weight:700;font-size:17px;line-height:1.15;margin:0;color:#fff}
-.bar p{font-family:'Open Sans',system-ui,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.14em;
+.bar p{font-family:'Open Sans',system-ui,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:#93a09a;margin:3px 0 0}
 .bar .toggle{margin-left:auto;display:none;background:none;border:1px solid #3c4a46;border-radius:4px;
   color:#cfd6d2;font-size:15px;line-height:1;padding:8px 11px;cursor:pointer}
@@ -49,17 +53,17 @@ body{margin:0;background:var(--bg);color:var(--ink);
 /* ---------- sidebar ---------- */
 .side{flex:0 0 var(--sidebar-w);width:var(--sidebar-w);background:var(--surface);
   border-right:1px solid var(--rule);overflow-y:auto;padding:16px 16px 22px}
-.side h2{font-family:'Open Sans',system-ui,sans-serif;font-size:10px;font-weight:700;letter-spacing:.13em;
+.side h2{font-family:'Open Sans',system-ui,sans-serif;font-size:11px;font-weight:700;letter-spacing:.11em;
   text-transform:uppercase;color:var(--ink-3);margin:0 0 9px}
 .side section + section{margin-top:20px;padding-top:18px;border-top:1px solid var(--rule)}
 .side section:first-of-type{margin-top:0}
 
 .opt{display:flex;align-items:center;gap:9px;padding:5px 0;cursor:pointer;
-  font-family:'Open Sans',system-ui,sans-serif;font-size:12.5px;color:var(--ink);line-height:1.3}
+  font-family:'Open Sans',system-ui,sans-serif;font-size:13px;color:var(--ink);line-height:1.3}
 .opt input{flex:0 0 auto;margin:0;accent-color:var(--deep);width:14px;height:14px}
 .opt .sw{flex:0 0 auto;width:11px;height:11px;border-radius:2px}
 .opt .nm{flex:1 1 auto;min-width:0}
-.opt .ct{flex:0 0 auto;color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:11.5px}
+.opt .ct{flex:0 0 auto;color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:12px}
 .opt.off .nm,.opt.off .ct{color:var(--ink-3)}
 
 input[type=search],select{width:100%;font-family:'Open Sans',system-ui,sans-serif;font-size:13px;color:var(--ink);
@@ -70,17 +74,19 @@ input[type=search],select{width:100%;font-family:'Open Sans',system-ui,sans-seri
 :is(select,input,button,summary,[tabindex]):focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
 details.fold{margin-top:4px}
-details.fold > summary{font-family:'Open Sans',system-ui,sans-serif;font-size:10px;font-weight:700;
-  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);cursor:pointer;list-style:none;
+details.fold > summary{font-family:'Open Sans',system-ui,sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);cursor:pointer;list-style:none;
   display:flex;align-items:center;gap:6px}
 details.fold > summary::-webkit-details-marker{display:none}
 details.fold > summary::before{content:"\25B8";font-size:9px;transition:transform .15s ease}
 details.fold > summary #off-n{margin-left:auto;font-variant-numeric:tabular-nums}
 details.fold[open] > summary::before{transform:rotate(90deg)}
+p.foldnote{font-family:'Open Sans',system-ui,sans-serif;font-size:11.5px;line-height:1.5;
+  color:var(--ink-2);margin:9px 0 2px}
 .offlist{margin:10px 0 0;padding:0;list-style:none}
 .offlist li{margin:0 0 2px}
 .offlist button{display:block;width:100%;text-align:left;background:none;border:0;padding:5px 0;cursor:pointer;
-  font-family:'Open Sans',system-ui,sans-serif;font-size:12px;color:var(--steel);line-height:1.35}
+  font-family:'Open Sans',system-ui,sans-serif;font-size:12px;color:var(--link);line-height:1.35}
 .offlist button:hover{color:var(--ink)}
 .offlist .ct{color:var(--ink-3);font-variant-numeric:tabular-nums}
 .offlist button.off{color:var(--ink-3)}
@@ -88,24 +94,31 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 .dl{display:flex;gap:9px;align-items:flex-start;text-decoration:none;
   border:1px solid var(--rule);border-left:3px solid var(--green);border-radius:4px;padding:10px 11px}
 .dl:hover{border-color:var(--ink-3);border-left-color:var(--green);background:var(--surface-2)}
-.dl .ic{flex:0 0 auto;font-size:14px;line-height:1.2;color:var(--green)}
-.dl b{display:block;font-family:'Open Sans',system-ui,sans-serif;font-size:12.5px;font-weight:600;color:var(--ink)}
-.dl em{display:block;font-style:normal;font-family:'Open Sans',system-ui,sans-serif;font-size:10.5px;
+.dl .ic{flex:0 0 auto;font-size:15px;line-height:1.2;color:var(--green-tx)}
+.dl b{display:block;font-family:'Open Sans',system-ui,sans-serif;font-size:13px;font-weight:600;color:var(--ink)}
+.dl em{display:block;font-style:normal;font-family:'Open Sans',system-ui,sans-serif;font-size:11.5px;
   color:var(--ink-3);line-height:1.4;margin-top:3px}
-.src{font-family:'Open Sans',system-ui,sans-serif;font-size:10.5px;line-height:1.5;color:var(--ink-3)}
+.src{font-family:'Open Sans',system-ui,sans-serif;font-size:11.5px;line-height:1.55;color:var(--ink-2)}
 .src p{margin:0 0 7px}
-.src a{color:var(--steel)}
-.src code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;color:var(--ink-2)}
+.src a{color:var(--link)}
+.src code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--ink-2)}
 
 /* ---------- map ---------- */
 .mapwrap{flex:1 1 auto;min-width:0;position:relative;display:flex;flex-direction:column;background:var(--bg)}
 .mapinner{flex:1 1 auto;min-height:0;position:relative}
 #map{position:absolute;inset:0;background:var(--land);z-index:0}
 .leaflet-container{font-family:'Open Sans',system-ui,sans-serif;background:var(--land)}
-.leaflet-control-attribution{font-size:10px;background:rgba(255,255,255,.82)}
-.leaflet-control-attribution a{color:var(--steel)}
+.leaflet-control-attribution{font-size:11px;background:rgba(255,255,255,.82)}
+.leaflet-control-attribution a{color:var(--link)}
 .leaflet-bar a{color:var(--ink-2)}
 .leaflet-bar a:hover{color:var(--ink)}
+
+/* Park outlines. A locator shape under the marker, not a survey boundary:
+   simplified, holes dropped. Kept faint so the markers stay the figure. */
+.bnd{fill:var(--green);fill-opacity:.17;stroke:#4e7524;stroke-opacity:.5;stroke-width:1;
+  transition:fill-opacity .12s ease}
+.bnd:hover{fill-opacity:.3}
+.bnd.sel{fill:var(--orange);fill-opacity:.3;stroke:var(--orange-dk);stroke-opacity:.85;stroke-width:1.4}
 
 /* Markers are div icons rather than Leaflet's default pin: fixed pixel size,
    so zooming pulls overlapping locations apart instead of magnifying them. */
@@ -126,7 +139,7 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 .tip span{color:#c3cbc7}
 
 .regionjump{position:absolute;top:14px;right:14px;z-index:500;display:flex;gap:0}
-.regionjump button{font-family:'Open Sans',system-ui,sans-serif;font-size:11px;font-weight:600;
+.regionjump button{font-family:'Open Sans',system-ui,sans-serif;font-size:11.5px;font-weight:600;
   color:var(--ink-2);background:rgba(255,255,255,.94);border:1px solid var(--rule);
   padding:5px 9px;cursor:pointer}
 .regionjump button + button{border-left:0}
@@ -149,7 +162,7 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 .tip span{color:#c3cbc7}
 .mapfoot{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;
   padding:6px 18px calc(11px + env(safe-area-inset-bottom, 0px));
-  font-family:'Open Sans',system-ui,sans-serif;font-size:10.5px;color:var(--ink-3);
+  font-family:'Open Sans',system-ui,sans-serif;font-size:11.5px;color:var(--ink-2);
   border-top:1px solid var(--rule);background:var(--surface)}
 .key{display:inline-flex;align-items:center;gap:6px}
 .key i.sw{display:inline-block;width:11px;height:11px;background:var(--orange);opacity:.82;
@@ -159,15 +172,15 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 .key i.sw.lg{width:15px;height:15px;margin-left:3px}
 .mapfoot #tally{color:var(--ink-2);font-variant-numeric:tabular-nums}
 .mapfoot .cwp{margin-left:auto}
-.mapfoot a{color:var(--steel)}
+.mapfoot a{color:var(--link)}
 
 /* ---------- detail ---------- */
 .detail{flex:0 0 var(--detail-w);width:var(--detail-w);background:var(--surface);
   border-left:1px solid var(--rule);display:flex;flex-direction:column;min-height:0}
 .detail[hidden]{display:none}
 .dhead{flex:0 0 auto;padding:14px 16px 12px;border-bottom:1px solid var(--rule);position:relative}
-.dhead .code{font-family:'Open Sans',system-ui,sans-serif;font-size:10px;font-weight:700;
-  letter-spacing:.12em;text-transform:uppercase;color:var(--orange)}
+.dhead .code{font-family:'Open Sans',system-ui,sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--orange-dk)}
 .dhead h3{font-family:'Bitter',Georgia,serif;font-weight:600;font-size:18px;line-height:1.25;margin:6px 34px 0 0;text-wrap:balance}
 .dhead .meta{font-family:'Open Sans',system-ui,sans-serif;font-size:11.5px;color:var(--ink-2);margin-top:6px}
 .close{position:absolute;top:12px;right:12px;background:none;border:0;font-size:19px;line-height:1;
@@ -180,24 +193,24 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 .agr h4{font-family:'Bitter',Georgia,serif;font-weight:600;font-size:14.5px;line-height:1.35;margin:0;text-wrap:balance}
 .agr .who{font-family:'Open Sans',system-ui,sans-serif;font-size:12px;color:var(--ink-2);margin-top:4px}
 .badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.badge{font-family:'Open Sans',system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:.04em;
+.badge{font-family:'Open Sans',system-ui,sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;
   text-transform:uppercase;padding:3px 7px;border-radius:3px;background:var(--surface-2);color:var(--ink-2);
   display:inline-flex;align-items:center;gap:5px}
 .badge i{width:8px;height:8px;border-radius:2px;display:inline-block}
 .badge.fund{background:rgba(47,91,116,.10);color:var(--deep);font-variant-numeric:tabular-nums}
 .agr details{margin-top:9px}
 .agr summary{font-family:'Open Sans',system-ui,sans-serif;font-size:12px;font-weight:600;
-  color:var(--steel);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:5px}
+  color:var(--link);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:5px}
 .agr summary::-webkit-details-marker{display:none}
 .agr summary::before{content:"+";font-size:13px;line-height:1}
 .agr details[open] summary::before{content:"\2212"}
 .agr .txt{font-size:14px;color:var(--ink-2);margin:9px 0 0}
-.agr .txt h5{font-family:'Open Sans',system-ui,sans-serif;font-size:10px;font-weight:700;letter-spacing:.09em;
-  text-transform:uppercase;color:var(--ink-3);margin:12px 0 4px}
+.agr .txt h5{font-family:'Open Sans',system-ui,sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-2);margin:12px 0 4px}
 .agr .txt h5:first-child{margin-top:0}
 .agr .txt p{margin:0}
 .agr .quote{border-left:2px solid var(--green);padding-left:11px}
-.agr .rec{font-family:'Open Sans',system-ui,sans-serif;font-size:11.5px;color:var(--ink-3)}
+.agr .rec{font-family:'Open Sans',system-ui,sans-serif;font-size:12px;color:var(--ink-3)}
 
 /* ---------- narrow ---------- */
 @media (max-width:1100px){ :root{ --detail-w:320px } }
@@ -245,11 +258,6 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 
     <aside class="side" id="side">
       <section>
-        <h2>Assistance program</h2>
-        <div id="progs"></div>
-      </section>
-
-      <section>
         <h2>Region</h2>
         <select id="f-region" aria-label="Filter by NPS region"><option value="">All regions</option></select>
       </section>
@@ -261,8 +269,16 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
       </section>
 
       <section>
+        <details class="fold" id="fold-prog">
+          <summary><span>Funding category</span><span id="prog-n">0</span></summary>
+          <p class="foldnote">These are the federal assistance listings the requests were filed under, which are accounting categories rather than a description of the work. Most conservation corps agreements fund natural resource work, for instance, but are listed under the corps program.</p>
+          <div id="progs"></div>
+        </details>
+      </section>
+
+      <section>
         <details class="fold" id="fold-off">
-          <summary><span>Not tied to one park</span><span id="off-n">0</span></summary>
+          <summary><span>Serving multiple parks</span><span id="off-n">0</span></summary>
           <ul class="offlist" id="offlist"></ul>
         </details>
       </section>
@@ -277,8 +293,8 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 
       <section class="src">
         <h2>Source and method</h2>
-        <p>Records from NPS FAST financial assistance tracking, status as of August 24, 2026. Only requests still carrying a <code>Disapproved</code> status are shown; seven from the same August 7 batch have since moved to another status and are excluded.</p>
-        <p>Park markers use NPS Land Resources Division boundary centroids. Offices, national programs, and monitoring networks are placed at the office address NPS publishes for each. Markers that would overlap are separated slightly so each stays clickable.</p>
+        <p>Records from NPS FAST financial assistance tracking, status as of September 9, 2026. Only requests still carrying a <code>Disapproved</code> status are shown; seven from the same August 7 batch have since moved to another status and are excluded.</p>
+        <p>Park markers use NPS Land Resources Division boundary centroids. Regional offices, national programs, and inventory and monitoring networks support groups of parks rather than one; each is drawn as a square at the office address NPS publishes for it. Every marker sits at its true coordinate, and markers hold a constant size as you zoom, so zooming pulls overlapping locations apart.</p>
         <p>Center for Western Priorities &middot; <a href="https://westernpriorities.org" target="_blank" rel="noopener">westernpriorities.org</a></p>
       </section>
     </aside>
@@ -296,7 +312,7 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
       </div>
       <div class="mapfoot">
         <span class="key"><i class="sw circ"></i> Park unit</span>
-        <span class="key"><i class="sw"></i> Office, program, or network</span>
+        <span class="key"><i class="sw"></i> Serves multiple parks</span>
         <span class="key"><i class="sw circ sm"></i><i class="sw circ lg"></i> Size: agreements disapproved</span>
         <span id="tally"></span>
         <span class="cwp">Source: NPS FAST &middot; <a href="https://westernpriorities.org" target="_blank" rel="noopener">westernpriorities.org</a></span>
@@ -312,6 +328,7 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 </div>
 
 <script id="data" type="application/json">__PAYLOAD__</script>
+<script id="bounds" type="application/json">__BOUNDARIES__</script>
 <script>
 (function(){
   var D = JSON.parse(document.getElementById('data').textContent);
@@ -319,12 +336,13 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
   var byUnit = {}; units.forEach(function(u){ byUnit[u.code] = u; });
   var NS = 'http://www.w3.org/2000/svg';
 
-  /* program colors, CWP chart sequence */
-  var PROG_ORDER = [], PROG_COLOR = {};
-  var SEQ = ['#d2781e','#4398b5','#78b43c','#96782d','#63c5d8','#9e4b2e','#5a87a5','#cbbc41'];
+  /* Programme order, most agreements first. No colour: every marker on the map
+     is the same orange, so a per-programme swatch would imply an encoding the
+     map does not use, and the first swatch read as "orange marker = corps". */
+  var PROG_ORDER = [];
   uniq(recs.map(function(r){ return r.prog; }))
     .sort(function(a,b){ return cnt('prog',b) - cnt('prog',a); })
-    .forEach(function(p,i){ PROG_ORDER.push(p); PROG_COLOR[p] = SEQ[i % SEQ.length]; });
+    .forEach(function(p){ PROG_ORDER.push(p); });
 
   var sel = null, lastPer = {};
   var f = { progs: PROG_ORDER.slice(), region:'', q:'' };
@@ -363,6 +381,30 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
   }).addTo(map);
   map.attributionControl.setPrefix(
     '<a href="https://westernpriorities.org" target="_blank" rel="noopener">Center for Western Priorities</a>');
+
+  /* ---------- park outlines ----------------------------------------------
+     Simplified boundaries for the parks this map plots, from the same NPS Land
+     Resources Division service the centroids come from. They sit in the overlay
+     pane, which is under both the basemap's label layer and the markers, so a
+     park reads as a shape the marker sits on rather than something competing
+     with it. See build/fetch_boundaries.py for how they were simplified. */
+  var BOUNDS = JSON.parse(document.getElementById('bounds').textContent);
+  var bndLayers = {};
+  Object.keys(BOUNDS).forEach(function(code){
+    var u = byUnit[code]; if(!u) return;
+    var rings = BOUNDS[code].map(function(ring){
+      return ring.map(function(pt){ return [pt[1], pt[0]]; });   // GeoJSON is lon,lat
+    });
+    var poly = L.polygon(rings, {
+      className: 'bnd', interactive: true, bubblingMouseEvents: false,
+      /* Styling lives in the stylesheet; Leaflet's own path options would
+         otherwise write inline attributes that the class cannot override. */
+      stroke: true, fill: true, weight: 1, color: '#4e7524', fillColor: '#78b43c',
+      opacity: .5, fillOpacity: .17
+    });
+    poly.on('click', function(){ pick(code); });
+    bndLayers[code] = poly;
+  });
 
   /* ---------- markers ---------- */
   function px(n){ return Math.round((7 + Math.sqrt(n) * 5) * 10) / 10; }
@@ -477,7 +519,6 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
     var l = document.createElement('label');
     l.className = 'opt'; l.setAttribute('for', id);
     l.innerHTML = '<input type="checkbox" id="' + id + '" checked>' +
-      '<span class="sw" style="background:' + PROG_COLOR[p] + '"></span>' +
       '<span class="nm">' + esc(p) + '</span><span class="ct">0</span>';
     var box = l.querySelector('input');
     box.addEventListener('change', function(){
@@ -488,6 +529,7 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
     progs.appendChild(l);
     progEls[p] = { label:l, box:box, ct:l.querySelector('.ct') };
   });
+  document.getElementById('prog-n').textContent = PROG_ORDER.length;
 
   var regSel = document.getElementById('f-region'), qIn = document.getElementById('f-q');
   uniq(recs.map(function(r){ return r.region; }))
@@ -581,6 +623,14 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
       progEls[p].label.classList.toggle('off', !progEls[p].box.checked);
     });
 
+    Object.keys(bndLayers).forEach(function(code){
+      var poly = bndLayers[code], on = (per[code] || 0) > 0;
+      if(on && !map.hasLayer(poly)) poly.addTo(map);
+      if(!on && map.hasLayer(poly)) map.removeLayer(poly);
+      var el = poly.getElement && poly.getElement();
+      if(el) el.classList.toggle('sel', code === sel);
+    });
+
     units.forEach(function(u){
       var lay = layers[u.code]; if(!lay) return;
       var n = per[u.code] || 0, el = span(lay);
@@ -618,7 +668,7 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
         '<h4>' + esc(r.title) + '</h4>' +
         '<div class="who">' + esc(titleCase(r.recipient)) + '</div>' +
         '<div class="badges">' +
-          '<span class="badge"><i style="background:' + PROG_COLOR[r.prog] + '"></i>' + esc(r.prog) + '</span>' +
+          '<span class="badge">' + esc(r.prog) + '</span>' +
           (r.fund != null ? '<span class="badge fund">Funding blocked ' + money(r.fund) + '</span>' : '') +
         '</div>' +
         '<details><summary>Description and impact</summary>' +

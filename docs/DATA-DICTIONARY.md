@@ -6,7 +6,7 @@ LF line endings. One row per disapproved agreement request.
 | Column | Description |
 |---|---|
 | `fast_id` | Unique identifier for the agreement submission in FAST, the NPS Financial Assistance Submission Tracker |
-| `status` | Status as of the August 24, 2026 snapshot. Always `Disapproved` in this file; see [METHODOLOGY.md](METHODOLOGY.md) for the records excluded |
+| `status` | Status as of the September 9, 2026 check. Always `Disapproved` in this file; see [METHODOLOGY.md](METHODOLOGY.md) for the records excluded |
 | `region_code` | NPS region code as recorded: PWR, IMR, WASO, NER, AKR, SER, MWR |
 | `region_name` | The region code expanded |
 | `unit_code` | Four-letter code of the park, office, or program that submitted the request. Park codes resolve at `nps.gov/<code>` |

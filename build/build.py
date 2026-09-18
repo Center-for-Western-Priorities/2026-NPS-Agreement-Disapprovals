@@ -24,13 +24,21 @@ CSS = os.path.join(ROOT, 'build', 'vendor', 'leaflet-1.9.4.css')
 tpl = tpl.replace('__LEAFLET_CSS__', open(CSS, encoding='utf-8').read().strip())
 payload = open(DATA, encoding='utf-8').read()
 
-# Guard the JSON so nothing inside it can close the <script> element, and so
-# line/paragraph separators cannot break the parse in older engines.
-payload = (payload.replace('<', '\\u003c')
-                  .replace(' ', ' ')
-                  .replace(' ', ' '))
+# Simplified park outlines, keyed by unit code. Regenerated only by
+# build/fetch_boundaries.py, which is the one script here that touches the
+# network; this build stays offline.
+BOUND = os.path.join(ROOT, 'build', 'vendor', 'nps-boundaries.json')
+boundaries = open(BOUND, encoding='utf-8').read().strip()
 
-html = tpl.replace('__PAYLOAD__', payload)
+
+def guard(text):
+    """Keep the JSON from closing the <script> element or tripping older parsers."""
+    return (text.replace('<', '\\u003c')
+                .replace('\u2028', '\\u2028')
+                .replace('\u2029', '\\u2029'))
+
+
+html = tpl.replace('__PAYLOAD__', guard(payload)).replace('__BOUNDARIES__', guard(boundaries))
 open(OUT, 'w', encoding='utf-8').write(html)
 
 d = json.loads(open(DATA, encoding='utf-8').read())

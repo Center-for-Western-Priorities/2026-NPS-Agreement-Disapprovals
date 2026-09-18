@@ -2,9 +2,14 @@
 
 ## Source
 
-Every record comes from a single extract of NPS FAST financial assistance tracking,
-with a status column dated August 24, 2026. Nothing on the map is derived from any
-other agreement database, and no record was added, merged, or edited.
+Every record comes from a single extract of NPS FAST financial assistance tracking.
+Nothing on the map is derived from any other agreement database, and no record was
+added, merged, or edited.
+
+Status was checked twice. The extract carried a status column dated **August 24, 2026**,
+and a follow-up check in the same database on **September 9, 2026** reconfirmed all 133
+records as still `Disapproved`, with the seven excluded records unchanged. The map and
+these documents give September 9 as the status date.
 
 The published form of that extract is
 [`data/nps-disapprovals-2026.csv`](../data/nps-disapprovals-2026.csv), documented
@@ -30,7 +35,7 @@ Hōnaunau and the Southwest Alaska Inventory and Monitoring Network each had a s
 agreement in the batch, and both were reinstated.
 
 Anyone describing this map in writing should say "133 agreements disapproved on
-August 7 and still disapproved as of August 24," not "133 agreements cancelled."
+August 7 and still disapproved as of September 9," not "133 agreements cancelled."
 The distinction matters because four of the August 7 disapprovals were reversed
 thirteen days later.
 
@@ -61,6 +66,17 @@ detail panel so the mapping is checkable:
 | 15.935 National Trail System Project | National Trails System |
 | 15.955 Martin Luther King Junior National Historic Site and Preservation District | MLK Historic Site preservation |
 
+These are the listings each request was filed under. They are accounting categories,
+not a description of the work, and reading them as subject areas will mislead. The four
+agreements under Natural Resource Stewardship are not the only natural resource work in
+the batch; much of the corps work is natural resource work filed under the corps
+listing. The map keeps the filter for anyone who wants it, but puts it in a collapsed
+section below region and search, with that caveat stated in the sidebar.
+
+The filter carries no color. Every marker on the map is the same orange, so a
+per-listing swatch would have implied an encoding the map does not use, and the first
+swatch in the old sequence was the marker orange itself.
+
 ## Funding blocked
 
 Every one of the 133 records carries a federal funding figure, from a second FAST
@@ -85,6 +101,24 @@ Figures are the amount each action would have obligated, not an appropriation or
 annual budget line. The accurate phrasing is "agreements worth $25.9 million," not
 "$25.9 million cut from the Park Service." 
 
+## Counting partner organizations
+
+The `recipient` column holds 29 distinct strings, but several are variants of the same
+organization: "The Great Basin Institute," "Great Basin Institute," and "THE GREAT
+BASIN INSTITUTE"; three spellings of the Desert Research Institute, two of which route
+it through the Nevada System of Higher Education; "National Experienced Workforce
+Solutions" with and without the corporate suffix, plus "New Solutions," the trade name
+that organization uses ([newsolutions.org](https://newsolutions.org/about-new-solutions/));
+and two capitalizations of the Golden Gate National Parks Conservancy. Collapsing those
+leaves **18** organizations.
+
+Three of them hold 112 of the 133 agreements, or 84 percent: the Great Basin Institute
+(72 agreements, $12,229,710), National Experienced Workforce Solutions (22, $2,076,386),
+and the Student Conservation Association (18, $1,344,856).
+
+No tribal government or tribal nonprofit appears in the recipient column. An earlier
+version of the README said otherwise; that was wrong.
+
 ## Regions
 
 The `Region` column uses the legacy NPS region codes (PWR, IMR, WASO, NER, AKR, SER,
@@ -101,6 +135,17 @@ is listed in [PLACEMENTS.md](PLACEMENTS.md).
 Sequoia and Kings Canyon share one administrative unit code (SEKI) and are drawn at
 the Sequoia centroid.
 
+Parks the map plots are also drawn with a simplified outline of their boundary,
+from layer 2 of the same NPS Land Resources Division service. Those outlines are for
+orientation, not survey: Douglas-Peucker simplified with the tolerance capped per
+shape so small units keep a recognizable form, interior holes dropped, detached
+pieces below a floor dropped, and coordinates rounded to about 11 metres. The largest
+piece of every park is always kept, so no park loses its outline. `build/fetch_boundaries.py`
+regenerates the file and documents the parameters; the result is committed, so the
+build itself never touches the network.
+
+Offices, programs, and networks have no boundary and are drawn only as squares.
+
 Every marker sits at its true coordinate. Markers hold a constant on-screen size
 as the map is zoomed, so the circle area encodes the agreement count and zooming
 separates neighbouring locations rather than enlarging them. Earlier drafts nudged
@@ -116,7 +161,8 @@ position on the map is adjusted for legibility.
    known, correct `LATLON` and `PLACE` in `build/prep.py`.
 2. A monitoring network's work happens across its member parks, not at its office.
    The square marks where the network is administered, which the detail panel states.
-3. The status snapshot is a single date. Any later DOI action is not reflected.
+3. The status snapshot runs through September 9, 2026. Any later DOI action is not
+   reflected.
 4. Basemap tiles come from Esri's Light Gray Canvas service. They are the page's
    only external dependency. If the service is unreachable the markers still draw,
    over a plain grey field.

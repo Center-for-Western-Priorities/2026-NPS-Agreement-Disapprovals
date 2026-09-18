@@ -17,15 +17,22 @@ redeploys on every push to `main`.
 
 ## What the map shows
 
-- **133 agreements** still carrying a disapproved status in the August 24, 2026 snapshot
+- **133 agreements** still carrying a disapproved status when the database was rechecked on September 9, 2026
 - **$25.9 million** in federal funding those agreements would have obligated
 - **61 locations** across **seven NPS regions**
-- **24 partner organizations**: universities, youth and veteran conservation corps,
-  tribal organizations, and nonprofits
-- **Eight assistance programs**, filterable, each with its own color
+- **18 partner organizations**: conservation corps, nonprofits, park friends groups,
+  and university research institutes. Three of them account for 112 of the 133
+  agreements: the Great Basin Institute (72), National Experienced Workforce
+  Solutions (22), and the Student Conservation Association (18)
+- **Eight federal assistance listings**, filterable from a collapsed section in the sidebar
 
-Filter by program or region, search across every field, and download the full dataset
-as CSV from the sidebar.
+Filter by region, search across every field, and download the full dataset as CSV from
+the sidebar. A collapsed "Funding category" section filters by federal assistance
+listing; it sits below the fold and carries a caveat, because those listings are
+accounting categories rather than a description of the work.
+
+Each park the map plots is drawn with a simplified outline of its boundary, so a reader
+can see the shape and extent of the place an agreement belonged to.
 
 Scroll to zoom, drag to pan, and use the region buttons to jump between the lower 48,
 Alaska, and Hawaiʻi. Markers hold a constant size as you zoom, so zooming separates
@@ -39,7 +46,7 @@ The source records hold 140 requests from the August 7 batch. Seven are excluded
 because they no longer carry a disapproved status: four were approved on DOI re-review
 on August 20, and three are marked Cancelled, FA Processing, and Pending NPS/DOI
 Review. When describing this map in writing, the accurate phrasing is "133 agreements
-disapproved on August 7 and still disapproved as of August 24." See
+disapproved on August 7 and still disapproved as of September 9." See
 [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
 
 ## The data
@@ -61,13 +68,15 @@ and are excluded; they would add $4,995,244. See
 ## Repository layout
 
 ```
-index.html                     the built site, one file, ~290 KB
+index.html                     the built site, one file, ~375 KB
 assets/logo/                   CWP logo, SVG; the mark is also inlined in the page
 build/
   prep.py                      records  ->  data/disapprovals.json + the published CSV
   build.py                     data + template  ->  index.html
+  fetch_boundaries.py          NPS boundary service  ->  simplified park outlines
   template.html                page markup, styles, and behavior
-  vendor/                      Leaflet's stylesheet, inlined at build time
+  vendor/                      Leaflet's stylesheet and the park outlines, both
+                               inlined at build time
 data/
   nps-disapprovals-2026.csv    the published dataset
   disapprovals.json            processed records and marker coordinates
@@ -93,6 +102,10 @@ python build/build.py    # data      ->  index.html
 `prep.py` reads the source workbook when it is present and the published CSV
 otherwise, so a fresh clone builds without it. Both scripts print a summary; check the
 record count before committing a rebuilt `index.html`.
+
+`fetch_boundaries.py` is separate and is the only script that uses the network. It
+rewrites `build/vendor/nps-boundaries.json`, which is committed, so the two build steps
+above run offline. Rerun it only when the set of mapped parks changes.
 
 To change the design or behavior, edit `build/template.html` and rerun `build.py`.
 Editing `index.html` directly works, but the next build overwrites it.
@@ -126,8 +139,8 @@ Note that the CSV download link is relative, so it resolves against wherever
 
 ## Sources
 
-- Agreement records: NPS FAST financial assistance tracking, status as of August 24, 2026
-- Park coordinates: [NPS Land Resources Division boundary centroids](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer)
+- Agreement records: NPS FAST financial assistance tracking, status as of September 9, 2026
+- Park coordinates and outlines: [NPS Land Resources Division Boundary and Tract Data Service](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer), layers 0 and 2
 - Office locations: addresses published by NPS, listed individually in [docs/PLACEMENTS.md](docs/PLACEMENTS.md)
 - Basemap: [Esri Light Gray Canvas](https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer), credited to Esri, HERE, Garmin, and OpenStreetMap contributors
 

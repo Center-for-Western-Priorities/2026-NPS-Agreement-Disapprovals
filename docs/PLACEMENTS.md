@@ -4,12 +4,19 @@ Two kinds of marker appear on the map.
 
 **Circles** are park units, drawn at the unit's boundary centroid from the
 [NPS Land Resources Division Boundary and Tract Data Service](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer),
-layer 0. No park coordinate was estimated.
+layer 0. No park coordinate was estimated. Each of these parks is also drawn with a
+simplified outline of its boundary, from layer 2 of the same service; see
+[METHODOLOGY.md](METHODOLOGY.md) for what the simplification drops.
 
 **Squares** are regional offices, national programs, directorates, a historic trail,
-and inventory and monitoring networks. None has a park boundary. Each is drawn at the
-office address NPS publishes for it, geocoded through OpenStreetMap Nominatim. The
-detail panel names the city so a square is never mistaken for a park.
+and inventory and monitoring networks. Each supports a group of parks rather than one,
+so none has a boundary of its own to draw. Each is placed at the office address NPS
+publishes for it, geocoded through OpenStreetMap Nominatim. The detail panel names the
+city so a square is never mistaken for a park.
+
+Juan Bautista de Anza is the one square that is itself a park unit: a national historic
+trail running through five states, listed here because it has no single point on the
+map and is administered from Richmond, California.
 
 ## Square markers
 
