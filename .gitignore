@@ -1,0 +1,26 @@
+# OS and editor cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+~$*
+
+# Google Drive / Office lock files
+.~lock.*
+*.tmp
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local build scratch
+*.png
+preview.html
+
+# Local working files, not part of the published site.
+# data/nps-disapprovals-2026.csv is the published dataset; build/prep.py falls
+# back to it when the source workbook is absent.
+data/source/
+_internal/

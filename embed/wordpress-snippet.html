@@ -1,0 +1,53 @@
+<!--
+  Center for Western Priorities
+  2026 NPS Agreement Disapprovals - WordPress embed snippet
+
+  Paste this into a Custom HTML block on the page where the map should appear.
+  Replace HOSTED_URL with the published URL of index.html.
+
+  The map is a single self-contained file, so it needs no plugin, no JavaScript
+  library, and no tile server. It only has to be reachable over https.
+
+  Two ways to size it:
+
+  1. Fixed height (simplest). Leave the snippet as is. The map fills the frame
+     and scrolls internally. 760px works on desktop; the media query below
+     gives phones more room because the layout stacks.
+
+  2. Auto height. Keep the small script at the bottom. The page posts its own
+     height to the parent frame and the script resizes the iframe to match.
+     This is what makes the stacked mobile layout sit flush with no inner
+     scrollbar. If your theme strips inline script tags, delete it and keep
+     option 1.
+-->
+
+<div class="cwp-embed">
+  <iframe
+    id="cwp-nps-disapprovals"
+    src="HOSTED_URL"
+    title="2026 NPS Agreement Disapprovals - Center for Western Priorities"
+    loading="lazy"
+    scrolling="no"
+    referrerpolicy="no-referrer-when-downgrade"></iframe>
+</div>
+
+<style>
+.cwp-embed{margin:0 0 1.5rem}
+.cwp-embed iframe{display:block;width:100%;height:760px;border:1px solid #e0ddd8;border-radius:4px;background:#f5f5f3}
+@media (max-width:900px){ .cwp-embed iframe{height:1180px} }
+</style>
+
+<script>
+/* Auto height. Delete this block to use a fixed height instead. */
+(function () {
+  var frame = document.getElementById('cwp-nps-disapprovals');
+  if (!frame) return;
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || d.type !== 'cwp:resize' || d.id !== 'nps-disapprovals') return;
+    if (e.source !== frame.contentWindow) return;
+    var h = parseInt(d.height, 10);
+    if (h > 300 && h < 6000) frame.style.height = h + 'px';
+  });
+})();
+</script>
