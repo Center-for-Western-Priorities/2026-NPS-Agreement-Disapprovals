@@ -8,6 +8,13 @@ statement as they appear in the records.
 
 Built by the Center for Western Priorities.
 
+## Live map
+
+**https://center-for-western-priorities.github.io/2026-NPS-Agreement-Disapprovals/**
+
+That URL is the map itself, and it is what the WordPress embed points at. It
+redeploys on every push to `main`.
+
 ## What the map shows
 
 - **133 agreements** still carrying a disapproved status in the August 24, 2026 snapshot
@@ -18,6 +25,15 @@ Built by the Center for Western Priorities.
 
 Filter by program or region, search across every field, and download the full dataset
 as CSV from the sidebar.
+
+Scroll to zoom, drag to pan, double-click to zoom in, and shift double-click to zoom
+back out. There are buttons in the top-right corner too, and the map takes `+`, `-`,
+`0`, and the arrow keys when focused. Markers hold a constant size as you zoom, so
+zooming in separates overlapping locations rather than magnifying a blob.
+
+Inside an iframe the plain scroll wheel is left to the host page, so readers are not
+trapped at the map partway down an article. Ctrl and scroll, or cmd and scroll on a
+Mac, zooms there; the map says so the first time someone scrolls over it.
 
 The source records hold 140 requests from the August 7 batch. Seven are excluded here
 because they no longer carry a disapproved status: four were approved on DOI re-review
@@ -41,6 +57,7 @@ none is shown.
 
 ```
 index.html                     the built site, self-contained, ~280 KB
+assets/logo/                   CWP logo, SVG; the mark is also inlined in the page
 build/
   prep.py                      records  ->  data/disapprovals.json + the published CSV
   build.py                     data + template  ->  index.html
@@ -81,8 +98,8 @@ Editing `index.html` directly works, but the next build overwrites it.
 requests the Google Fonts stylesheet and falls back to Georgia and a system sans if
 that is blocked. Serve it from anywhere that does static files.
 
-**GitHub Pages.** Settings → Pages → Source "Deploy from a branch", branch `main`,
-folder `/ (root)`.
+**GitHub Pages**, which is what serves the live map above. Settings → Pages →
+Source "Deploy from a branch", branch `main`, folder `/ (root)`.
 
 **Netlify.** Import this repository, leave the build command empty, set the publish
 directory to `/`.

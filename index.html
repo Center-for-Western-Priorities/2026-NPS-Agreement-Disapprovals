@@ -30,7 +30,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .bar{background:var(--bar);border-bottom:3px solid var(--green);flex:0 0 auto;
   padding:11px 18px;padding-top:calc(11px + env(safe-area-inset-top, 0px));
   display:flex;align-items:center;gap:12px}
-.mark{flex:0 0 auto;width:26px;height:26px}
+.mark{flex:0 0 auto;width:30px;height:30px;display:block}
 .bar h1{font-family:'Bitter',Georgia,serif;font-weight:700;font-size:17px;line-height:1.15;margin:0;color:#fff}
 .bar p{font-family:'Open Sans',system-ui,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;color:#93a09a;margin:3px 0 0}
@@ -96,7 +96,32 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 .mapinner{flex:1 1 auto;min-height:0;position:relative;padding:14px 16px 6px;display:flex;align-items:center;justify-content:center}
 svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
 .state{fill:var(--land);stroke:var(--land-line);stroke-width:.6;vector-effect:non-scaling-stroke}
-.mk{fill:var(--orange);fill-opacity:.8;stroke:#fff;stroke-width:1.2;cursor:pointer}
+.mk{fill:var(--orange);fill-opacity:.8;stroke:#fff;stroke-width:1.2;cursor:pointer;
+  vector-effect:non-scaling-stroke}
+svg.map{touch-action:none}
+svg.map.grab{cursor:grab}
+svg.map.grabbing{cursor:grabbing}
+
+.zoomui{position:absolute;top:20px;right:22px;display:flex;flex-direction:column;gap:-1px;z-index:4}
+.zoomui button{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Open Sans',system-ui,sans-serif;font-size:15px;line-height:1;color:var(--ink-2);
+  background:var(--surface);border:1px solid var(--rule);cursor:pointer}
+.zoomui button:first-child{border-radius:4px 4px 0 0}
+.zoomui button:last-child{border-radius:0 0 4px 4px;font-size:12px}
+.zoomui button + button{border-top:0}
+.zoomui button:hover{color:var(--ink);background:var(--surface-2)}
+.zoomui button[disabled]{color:var(--ink-3);opacity:.5;cursor:default;background:var(--surface)}
+
+.zoomhint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(30,38,36,.42);color:#fff;font-family:'Open Sans',system-ui,sans-serif;font-size:14px;
+  font-weight:600;text-align:center;padding:20px;z-index:5;pointer-events:none;
+  opacity:0;transition:opacity .18s ease}
+.zoomhint.show{opacity:1}
+
+.zoomlevel{position:absolute;top:20px;left:22px;z-index:4;
+  font-family:'Open Sans',system-ui,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.06em;
+  color:var(--ink-2);background:var(--surface);border:1px solid var(--rule);border-radius:4px;
+  padding:4px 8px;font-variant-numeric:tabular-nums}
 .mk:hover{fill-opacity:1;stroke-width:2}
 .mk.sel{fill:var(--orange-dk);fill-opacity:1;stroke:var(--wordmark);stroke-width:2.2}
 .mk.dim{fill-opacity:.09;stroke-opacity:.2;pointer-events:none}
@@ -170,6 +195,7 @@ svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
   .bar p{display:none}
   .bar h1{font-size:15.5px}
 }
+@media (max-width:900px){ .zoomui{top:14px;right:16px} .zoomlevel{top:14px;left:16px} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -177,11 +203,16 @@ svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
 <div class="app">
 
   <header class="bar">
-    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
-      <rect x="16" y="2" width="14" height="14" transform="rotate(45 16 2)" fill="#78b43c"></rect>
-      <rect x="9" y="16" width="9" height="9" transform="rotate(45 9 16)" fill="#d2781e"></rect>
-      <rect x="23" y="16" width="9" height="9" transform="rotate(45 23 16)" fill="#4398b5"></rect>
-    </svg>
+    <svg class="mark" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 106 106">
+      <path fill="#85bc40" d="M 52.933 9.449 L 74.191 30.699 L 52.933 51.953 L 31.683 30.703 Z M 52.933 9.449 "/>
+      <path fill="#678ba4" d="M 96.464 53.023 L 75.214 74.273 L 53.960 53.023 L 75.210 31.769 Z M 96.464 53.023 "/>
+      <path fill="#d97a28" d="M 52.039 53.023 L 30.789 74.273 L 9.535 53.023 L 30.785 31.769 Z M 52.039 53.023 "/>
+      <path fill="#99813a" d="M 52.890 96.550 L 31.640 75.296 L 52.890 54.042 L 74.144 75.292 Z M 52.890 96.550 "/>
+      <path fill="#ffffff" d="M 79.140 63.925 C 82.886 62.234 83.445 58.726 83.214 57.011 C 82.890 54.628 81.460 52.832 80.382 51.582 C 80.320 51.507 77.667 48.722 76.730 45.769 C 76.375 44.640 76.164 43.101 76.058 41.621 C 75.957 40.191 75.914 37.867 75.898 37.867 C 75.773 38.191 75.449 39.058 75.128 40.238 C 74.546 42.390 73.960 45.582 74.558 48.5 C 75.187 51.996 77.632 55.417 78.082 56.917 C 78.613 58.773 78.164 60.660 75.863 60.945 C 72.628 61.359 71.910 58.007 72.238 56.480 C 72.867 56.105 73.984 55.652 74.738 55.937 C 74.058 55.328 73.378 50.445 73.921 48.003 C 70.496 50.429 68 55.882 68.433 59.578 C 69.027 57.839 69.863 57.214 69.863 57.234 C 69.789 57.675 69.679 60.070 70.605 61.644 C 72.363 64.437 75.769 65.449 79.140 63.925 "/>
+      <path fill="#ffffff" d="M 53.511 17.964 C 53.511 17.964 46.304 28.480 46.304 33.015 C 46.304 36.648 48.980 39.644 52.468 40.148 C 52.996 40.222 53.101 40.140 53.125 39.644 C 53.136 39.410 53.140 37.238 53.140 37.238 C 53.140 37.105 53.058 36.921 52.960 36.832 L 48.039 32.406 C 47.941 32.316 47.929 32.164 48.011 32.066 C 48.093 31.968 48.246 31.957 48.347 32.039 L 52.960 35.812 C 53.062 35.898 53.148 35.859 53.148 35.726 L 53.167 32.714 C 53.167 32.582 53.085 32.402 52.988 32.312 L 49.445 29.183 C 49.347 29.093 49.328 28.941 49.410 28.835 C 49.488 28.738 49.640 28.726 49.746 28.808 L 52.980 31.316 C 53.089 31.398 53.175 31.359 53.175 31.222 L 53.191 28.136 C 53.195 28 53.109 27.824 53.007 27.738 L 50.855 25.957 C 50.753 25.871 50.730 25.718 50.804 25.613 C 50.882 25.507 51.035 25.484 51.144 25.558 L 53 26.804 C 53.109 26.878 53.203 26.828 53.203 26.695 L 53.222 22.937 C 53.226 22.804 53.339 22.695 53.468 22.695 L 53.546 22.695 C 53.683 22.695 53.789 22.804 53.792 22.937 L 53.816 26.695 C 53.816 26.828 53.906 26.878 54.019 26.804 L 55.875 25.558 C 55.984 25.484 56.136 25.507 56.210 25.613 C 56.289 25.718 56.261 25.871 56.160 25.957 L 54.007 27.738 C 53.906 27.824 53.820 28 53.824 28.136 L 53.839 31.222 C 53.843 31.359 53.929 31.398 54.039 31.316 L 57.273 28.808 C 57.375 28.726 57.527 28.738 57.609 28.835 C 57.691 28.941 57.671 29.093 57.574 29.183 L 54.031 32.312 C 53.929 32.402 53.851 32.582 53.851 32.714 L 53.871 35.726 C 53.871 35.859 53.957 35.898 54.058 35.812 L 58.671 32.039 C 58.773 31.957 58.925 31.968 59.007 32.066 C 59.089 32.164 59.074 32.316 58.976 32.406 L 54.054 36.832 C 53.960 36.921 53.878 37.105 53.878 37.238 C 53.878 37.238 53.906 41.406 53.906 41.570 C 53.902 41.742 54.011 41.933 54.222 41.933 L 55.050 41.933 C 55.363 41.933 55.359 41.777 55.359 41.515 L 55.359 40.871 C 55.359 40.378 55.503 39.980 56.128 39.734 C 58.812 38.687 60.714 36.078 60.714 33.015 C 60.714 28.480 53.511 17.964 53.511 17.964 "/>
+      <path fill="#ffffff" d="M 60.093 68.406 L 60.480 69.449 L 55.156 75.031 Z M 55.406 64.445 L 55.546 64.812 L 53.667 66.785 Z M 54.246 63.082 L 54.312 64.707 L 48.335 72.371 Z M 39.890 75.292 L 43.921 68.406 L 45.089 68.863 Z M 60.105 67.882 L 59.320 68.125 L 54.335 61.976 L 48.832 69.449 L 43.718 67.519 L 37.164 78.605 L 65.613 78.605 Z M 60.105 67.882 "/>
+      <path fill="#ffffff" d="M 23.265 59.363 L 26.640 59.363 L 26.640 53.363 L 29.832 53.363 L 29.832 59.363 L 38.269 59.363 L 38.269 50.453 L 40.144 50.453 L 36.406 46.714 L 36.406 43.234 L 34.707 43.234 L 34.707 45.015 L 30.863 41.171 L 21.582 50.453 L 23.265 50.453 Z M 23.265 59.363 "/>
+      </svg>
     <div>
       <h1>2026 NPS Agreement Disapprovals</h1>
       <p>Center for Western Priorities &middot; Park partnerships Interior turned down</p>
@@ -235,9 +266,18 @@ svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
       <div class="mapinner" id="mapinner">
         <svg class="map" id="map" viewBox="0 0 960 560" preserveAspectRatio="xMidYMid meet" role="img"
              aria-label="Map of National Park Service units and offices with disapproved financial assistance agreements">
-          <g id="g-states"></g>
-          <g id="g-marks"></g>
+          <g id="viewport">
+            <g id="g-states"></g>
+            <g id="g-marks"></g>
+          </g>
         </svg>
+        <div class="zoomui">
+          <button type="button" id="z-in"    aria-label="Zoom in">+</button>
+          <button type="button" id="z-out"   aria-label="Zoom out">&minus;</button>
+          <button type="button" id="z-reset" aria-label="Reset the view" title="Reset the view">&#9678;</button>
+        </div>
+        <div class="zoomhint" id="zoomhint" hidden aria-hidden="true"></div>
+        <div class="zoomlevel" id="zoomlevel" hidden aria-hidden="true"></div>
       </div>
       <div class="mapfoot">
         <span class="key"><svg width="13" height="13" viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="5" fill="#d2781e" fill-opacity=".8" stroke="#fff" stroke-width="1.2"></circle></svg> Park unit</span>
@@ -271,7 +311,7 @@ svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
     .sort(function(a,b){ return cnt('prog',b) - cnt('prog',a); })
     .forEach(function(p,i){ PROG_ORDER.push(p); PROG_COLOR[p] = SEQ[i % SEQ.length]; });
 
-  var sel = null;
+  var sel = null, lastPer = {};
   var f = { progs: PROG_ORDER.slice(), region:'', q:'' };
 
   /* ---------- map geometry ---------- */
@@ -282,14 +322,17 @@ svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
     gs.appendChild(p);
   });
 
-  function size(n){ return 3.6 + Math.sqrt(n) * 2.5; }
+  /* Markers keep a constant on-screen size as the map scales, so zooming in
+     pulls overlapping locations apart instead of magnifying one blob. */
+  var zoomK = 1;
+  function size(n){ return (3.6 + Math.sqrt(n) * 2.5) / zoomK; }
   var gm = document.getElementById('g-marks'), mkEls = {};
   units.slice().sort(function(a,b){ return b.n - a.n; }).forEach(function(u){
     var el = document.createElementNS(NS, u.kind === 'park' ? 'circle' : 'rect');
     if(u.kind === 'park'){ el.setAttribute('cx', u.xy[0]); el.setAttribute('cy', u.xy[1]); }
     el.setAttribute('class','mk');
     el.setAttribute('tabindex','0'); el.setAttribute('role','button');
-    el.addEventListener('click', function(){ pick(u.code); });
+    el.addEventListener('click', function(){ if(!moved) pick(u.code); });
     el.addEventListener('keydown', function(e){
       if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(u.code); }
     });
@@ -311,6 +354,157 @@ svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
       el.setAttribute('width', s.toFixed(1)); el.setAttribute('height', s.toFixed(1));
     }
   }
+
+
+  /* ---------- zoom and pan ----------------------------------------------
+     Hand-rolled rather than pulled from a library, because the page has to
+     stay a single self-contained file with no external scripts.
+
+     Wheel behaviour depends on where the page is running. Standalone, the
+     layout is fixed-height and nothing scrolls behind the map, so a plain
+     wheel zooms. Inside an iframe on the CWP site the parent page does
+     scroll, and swallowing the wheel would trap the reader at the map, so
+     there a plain wheel scrolls the article and ctrl/cmd + wheel zooms. */
+  var svg = document.getElementById('map'),
+      vp = document.getElementById('viewport'),
+      hint = document.getElementById('zoomhint'),
+      levelBox = document.getElementById('zoomlevel'),
+      W = 960, H = 560, MIN_K = 1, MAX_K = 14,
+      k = 1, tx = 0, ty = 0,
+      embedded = window.parent && window.parent !== window;
+
+  function clampT(){
+    tx = Math.min(0, Math.max(W * (1 - k), tx));
+    ty = Math.min(0, Math.max(H * (1 - k), ty));
+  }
+  function apply(){
+    clampT();
+    zoomK = k;
+    vp.setAttribute('transform', 'translate(' + tx.toFixed(2) + ',' + ty.toFixed(2) + ') scale(' + k.toFixed(4) + ')');
+    units.forEach(function(u){ draw(u, lastPer[u.code] || 1); });
+    document.getElementById('z-in').disabled = k >= MAX_K - 1e-6;
+    document.getElementById('z-out').disabled = k <= MIN_K + 1e-6;
+    document.getElementById('z-reset').disabled = k <= MIN_K + 1e-6;
+    levelBox.hidden = k <= MIN_K + 1e-6;
+    levelBox.textContent = k.toFixed(1) + '\u00d7';
+    svg.classList.toggle('grab', k > MIN_K);
+  }
+  /* Zoom about a fixed point so the map grows out from the cursor. */
+  function zoomAbout(cx, cy, factor){
+    var nk = Math.min(MAX_K, Math.max(MIN_K, k * factor));
+    if(nk === k) return;
+    tx = cx - (cx - tx) * (nk / k);
+    ty = cy - (cy - ty) * (nk / k);
+    k = nk;
+    apply();
+  }
+  function centre(){ return [W / 2, H / 2]; }
+  /* Client pixels to viewBox units, which also undoes the letterboxing that
+     preserveAspectRatio introduces at non-matching aspect ratios. */
+  function toMap(e){
+    var m = svg.getScreenCTM();
+    if(!m) return centre();
+    var p = svg.createSVGPoint();
+    p.x = e.clientX; p.y = e.clientY;
+    p = p.matrixTransform(m.inverse());
+    return [p.x, p.y];
+  }
+
+  var hintTimer;
+  function showHint(msg){
+    hint.textContent = msg;
+    hint.hidden = false;
+    requestAnimationFrame(function(){ hint.classList.add('show'); });
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(function(){
+      hint.classList.remove('show');
+      setTimeout(function(){ hint.hidden = true; }, 200);
+    }, 1400);
+  }
+
+  svg.addEventListener('wheel', function(e){
+    if(embedded && !(e.ctrlKey || e.metaKey)){
+      showHint((navigator.platform.indexOf('Mac') === 0 ? '\u2318' : 'Ctrl') + ' + scroll to zoom the map');
+      return;                       // let the article keep scrolling
+    }
+    e.preventDefault();
+    var c = toMap(e);
+    // Normalise the delta; trackpads and mice report wildly different units.
+    var step = Math.exp(-Math.max(-4, Math.min(4, e.deltaY / 100)) * 0.28);
+    zoomAbout(c[0], c[1], step);
+  }, { passive: false });
+
+  svg.addEventListener('dblclick', function(e){
+    var c = toMap(e);
+    zoomAbout(c[0], c[1], e.shiftKey ? 1 / 1.8 : 1.8);
+  });
+
+  /* Drag to pan. Pointer events cover mouse, pen and single-finger touch. */
+  var drag = null, moved = false, pointers = new Map(), pinchStart = null;
+  svg.addEventListener('pointerdown', function(e){
+    // Reset before the early returns below: leaving this set from a previous
+    // drag would suppress every later marker click.
+    moved = false;
+    pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if(pointers.size === 2){ drag = null; pinchStart = pinchState(); return; }
+    if(k <= MIN_K) return;
+    drag = { x: e.clientX, y: e.clientY, tx: tx, ty: ty };
+    svg.setPointerCapture(e.pointerId);
+    svg.classList.add('grabbing');
+  });
+  svg.addEventListener('pointermove', function(e){
+    if(pointers.has(e.pointerId)) pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if(pointers.size === 2 && pinchStart){ pinch(); return; }
+    if(!drag) return;
+    var r = svg.getBoundingClientRect();
+    var unitsPerPx = W / (r.width || 1);
+    var dx = (e.clientX - drag.x) * unitsPerPx, dy = (e.clientY - drag.y) * unitsPerPx;
+    if(Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) moved = true;
+    tx = drag.tx + dx; ty = drag.ty + dy;
+    apply();
+  });
+  function endPointer(e){
+    pointers.delete(e.pointerId);
+    if(pointers.size < 2) pinchStart = null;
+    if(drag){ drag = null; svg.classList.remove('grabbing'); }
+    if(moved) setTimeout(function(){ moved = false; }, 0);
+  }
+  svg.addEventListener('pointerup', endPointer);
+  svg.addEventListener('pointercancel', endPointer);
+  svg.addEventListener('pointerleave', function(e){ if(!svg.hasPointerCapture || !svg.hasPointerCapture(e.pointerId)) endPointer(e); });
+
+  function pinchState(){
+    var pts = Array.from(pointers.values());
+    var dx = pts[0][0] - pts[1][0], dy = pts[0][1] - pts[1][1];
+    return { dist: Math.hypot(dx, dy) || 1, k: k };
+  }
+  function pinch(){
+    var now = pinchState();
+    var pts = Array.from(pointers.values());
+    var mid = { clientX: (pts[0][0] + pts[1][0]) / 2, clientY: (pts[0][1] + pts[1][1]) / 2 };
+    var target = pinchStart.k * (now.dist / pinchStart.dist);
+    var c = toMap(mid);
+    zoomAbout(c[0], c[1], target / k);
+  }
+
+  document.getElementById('z-in').addEventListener('click', function(){ var c = centre(); zoomAbout(c[0], c[1], 1.6); });
+  document.getElementById('z-out').addEventListener('click', function(){ var c = centre(); zoomAbout(c[0], c[1], 1 / 1.6); });
+  document.getElementById('z-reset').addEventListener('click', function(){ k = 1; tx = 0; ty = 0; apply(); });
+
+  /* Keyboard equivalents, so zoom is not mouse-only. */
+  svg.setAttribute('tabindex', '0');
+  svg.addEventListener('keydown', function(e){
+    var c = centre(), pan = 40 / k;
+    if(e.key === '+' || e.key === '=') { zoomAbout(c[0], c[1], 1.6); }
+    else if(e.key === '-' || e.key === '_') { zoomAbout(c[0], c[1], 1 / 1.6); }
+    else if(e.key === '0') { k = 1; tx = 0; ty = 0; apply(); }
+    else if(e.key === 'ArrowLeft')  { tx += pan; apply(); }
+    else if(e.key === 'ArrowRight') { tx -= pan; apply(); }
+    else if(e.key === 'ArrowUp')    { ty += pan; apply(); }
+    else if(e.key === 'ArrowDown')  { ty -= pan; apply(); }
+    else return;
+    e.preventDefault();
+  });
 
   /* ---------- tooltip ---------- */
   var card = document.getElementById('mapinner'), tip = null;
@@ -434,6 +628,7 @@ svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
   function render(){
     var vis = visible(), per = {};
     vis.forEach(function(r){ per[r.unit] = (per[r.unit]||0) + 1; });
+    lastPer = per;
 
     var nloc = Object.keys(per).length;
     document.getElementById('tally').textContent =
@@ -525,6 +720,7 @@ svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
   }
 
   render();
+  apply();
 })();
 </script>
 </body>

@@ -178,10 +178,44 @@ paste the snippet into a Custom HTML block on the WordPress page.
 
 ## Pushing later changes
 
+Every time, in this order:
+
 ```powershell
-git add .
+git add -A
+git status --short
+```
+
+Read that list before committing. Then confirm the three exclusions still hold,
+because a new file dropped into the wrong folder is the one way private material
+reaches the public repo:
+
+```powershell
+git ls-files data/source
+git ls-files _internal
+git ls-files docs
+```
+
+First two print nothing. The third prints exactly `docs/DATA-DICTIONARY.md`,
+`docs/METHODOLOGY.md`, and `docs/PLACEMENTS.md`. If any is wrong, run
+`git rm --cached -r <path>` before committing; the file stays on disk.
+
+Then:
+
+```powershell
 git commit -m "what changed"
 git push
+```
+
+No `--force` on a normal push. You only needed that once, to replace the stub
+commit GitHub created with the repository. If a routine push is ever rejected,
+something else changed the remote, so stop and look rather than forcing.
+
+If you edited `build/template.html` or the data, rebuild before committing so the
+published `index.html` matches the source:
+
+```powershell
+python build/prep.py
+python build/build.py
 ```
 
 ## A note about Google Drive

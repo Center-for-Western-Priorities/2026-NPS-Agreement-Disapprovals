@@ -85,6 +85,10 @@ is listed in [PLACEMENTS.md](PLACEMENTS.md).
 Sequoia and Kings Canyon share one administrative unit code (SEKI) and are drawn at
 the Sequoia centroid.
 
+Markers hold a constant on-screen size as the map is zoomed, so the circle area
+encodes the agreement count at the default view and zooming separates neighbours
+rather than enlarging them.
+
 Markers whose projected positions fall within nine pixels of each other are spread
 around the group's center on a small ring so each stays clickable. The largest
 displacement on the current data is under 12 pixels on a 960-pixel-wide map, roughly
