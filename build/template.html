@@ -7,8 +7,14 @@
 <meta name="description" content="Interactive map of the National Park Service financial assistance agreements the Department of the Interior disapproved on August 7, 2026.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700&family=Open+Sans:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
 <style>
+/* --- Leaflet 1.9.4, inlined: artifact pages only allow external stylesheets
+   from Google Fonts, so the library CSS has to ship with the page. --- */
+__LEAFLET_CSS__
+/* --- end Leaflet --- */
+
 :root{
   --green:#78b43c; --orange:#d2781e; --orange-dk:#a75c13; --blue:#4398b5; --steel:#5a87a5;
   --wordmark:#465050; --gold:#96782d; --deep:#2f5b74;
@@ -93,35 +99,44 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 
 /* ---------- map ---------- */
 .mapwrap{flex:1 1 auto;min-width:0;position:relative;display:flex;flex-direction:column;background:var(--bg)}
-.mapinner{flex:1 1 auto;min-height:0;position:relative;padding:14px 16px 6px;display:flex;align-items:center;justify-content:center}
-svg.map{display:block;width:100%;height:100%;max-height:100%;overflow:visible}
-.state{fill:var(--land);stroke:var(--land-line);stroke-width:.6;vector-effect:non-scaling-stroke}
-.mk{fill:var(--orange);fill-opacity:.8;stroke:#fff;stroke-width:1.2;cursor:pointer;
-  vector-effect:non-scaling-stroke}
-svg.map{touch-action:none}
-svg.map.grab{cursor:grab}
-svg.map.grabbing{cursor:grabbing}
+.mapinner{flex:1 1 auto;min-height:0;position:relative}
+#map{position:absolute;inset:0;background:var(--land);z-index:0}
+.leaflet-container{font-family:'Open Sans',system-ui,sans-serif;background:var(--land)}
+.leaflet-control-attribution{font-size:10px;background:rgba(255,255,255,.82)}
+.leaflet-control-attribution a{color:var(--steel)}
+.leaflet-bar a{color:var(--ink-2)}
+.leaflet-bar a:hover{color:var(--ink)}
 
-.zoomui{position:absolute;top:20px;right:22px;display:flex;flex-direction:column;gap:-1px;z-index:4}
-.zoomui button{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;
-  font-family:'Open Sans',system-ui,sans-serif;font-size:15px;line-height:1;color:var(--ink-2);
-  background:var(--surface);border:1px solid var(--rule);cursor:pointer}
-.zoomui button:first-child{border-radius:4px 4px 0 0}
-.zoomui button:last-child{border-radius:0 0 4px 4px;font-size:12px}
-.zoomui button + button{border-top:0}
-.zoomui button:hover{color:var(--ink);background:var(--surface-2)}
-.zoomui button[disabled]{color:var(--ink-3);opacity:.5;cursor:default;background:var(--surface)}
+/* Markers are div icons rather than Leaflet's default pin: fixed pixel size,
+   so zooming pulls overlapping locations apart instead of magnifying them. */
+.mk{display:block;background:var(--orange);opacity:.82;border:1.5px solid #fff;
+  box-sizing:border-box;cursor:pointer;transition:opacity .1s ease}
+.mk.circ{border-radius:50%}
+.mk:hover{opacity:1;border-width:2.5px}
+.mk.sel{background:var(--orange-dk);opacity:1;border-color:var(--wordmark);border-width:2.5px}
+.leaflet-marker-icon:focus-visible .mk{outline:2px solid var(--blue);outline-offset:2px}
+
+.leaflet-tooltip.tip{background:var(--wordmark);color:#fff;border:0;border-radius:4px;
+  padding:7px 10px;font-size:11.5px;line-height:1.35;box-shadow:0 2px 10px rgba(0,0,0,.22);
+  white-space:normal;max-width:240px}
+.leaflet-tooltip.tip:before{display:none}
+.tip b{display:block;font-size:12px;font-weight:700;margin-bottom:2px}
+.tip span{color:#c3cbc7}
+
+.regionjump{position:absolute;top:14px;right:14px;z-index:500;display:flex;gap:0}
+.regionjump button{font-family:'Open Sans',system-ui,sans-serif;font-size:11px;font-weight:600;
+  color:var(--ink-2);background:rgba(255,255,255,.94);border:1px solid var(--rule);
+  padding:5px 9px;cursor:pointer}
+.regionjump button + button{border-left:0}
+.regionjump button:first-child{border-radius:4px 0 0 4px}
+.regionjump button:last-child{border-radius:0 4px 4px 0}
+.regionjump button:hover{color:var(--ink);background:#fff}
 
 .zoomhint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   background:rgba(30,38,36,.42);color:#fff;font-family:'Open Sans',system-ui,sans-serif;font-size:14px;
-  font-weight:600;text-align:center;padding:20px;z-index:5;pointer-events:none;
+  font-weight:600;text-align:center;padding:20px;z-index:600;pointer-events:none;
   opacity:0;transition:opacity .18s ease}
 .zoomhint.show{opacity:1}
-
-.zoomlevel{position:absolute;top:20px;left:22px;z-index:4;
-  font-family:'Open Sans',system-ui,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.06em;
-  color:var(--ink-2);background:var(--surface);border:1px solid var(--rule);border-radius:4px;
-  padding:4px 8px;font-variant-numeric:tabular-nums}
 .mk:hover{fill-opacity:1;stroke-width:2}
 .mk.sel{fill:var(--orange-dk);fill-opacity:1;stroke:var(--wordmark);stroke-width:2.2}
 .mk.dim{fill-opacity:.09;stroke-opacity:.2;pointer-events:none}
@@ -135,7 +150,11 @@ svg.map.grabbing{cursor:grabbing}
   font-family:'Open Sans',system-ui,sans-serif;font-size:10.5px;color:var(--ink-3);
   border-top:1px solid var(--rule);background:var(--surface)}
 .key{display:inline-flex;align-items:center;gap:6px}
-.key svg{display:block;overflow:visible}
+.key i.sw{display:inline-block;width:11px;height:11px;background:var(--orange);opacity:.82;
+  border:1.5px solid #fff;box-sizing:border-box;outline:1px solid var(--rule)}
+.key i.sw.circ{border-radius:50%}
+.key i.sw.sm{width:8px;height:8px}
+.key i.sw.lg{width:15px;height:15px;margin-left:3px}
 .mapfoot #tally{color:var(--ink-2);font-variant-numeric:tabular-nums}
 .mapfoot .cwp{margin-left:auto}
 .mapfoot a{color:var(--steel)}
@@ -187,7 +206,7 @@ svg.map.grabbing{cursor:grabbing}
   .side{flex:0 0 auto;width:auto;border-right:0;border-bottom:1px solid var(--rule)}
   .side[hidden]{display:none}
   .mapwrap{flex:0 0 auto}
-  .mapinner{padding:12px 12px 4px;min-height:60vh}
+  .mapinner{min-height:62vh}
   .detail{flex:0 0 auto;width:auto;border-left:0;border-top:1px solid var(--rule)}
   .dbody{overflow:visible}
 }
@@ -195,7 +214,6 @@ svg.map.grabbing{cursor:grabbing}
   .bar p{display:none}
   .bar h1{font-size:15.5px}
 }
-@media (max-width:900px){ .zoomui{top:14px;right:16px} .zoomlevel{top:14px;left:16px} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -264,25 +282,19 @@ svg.map.grabbing{cursor:grabbing}
 
     <div class="mapwrap">
       <div class="mapinner" id="mapinner">
-        <svg class="map" id="map" viewBox="0 0 960 560" preserveAspectRatio="xMidYMid meet" role="img"
-             aria-label="Map of National Park Service units and offices with disapproved financial assistance agreements">
-          <g id="viewport">
-            <g id="g-states"></g>
-            <g id="g-marks"></g>
-          </g>
-        </svg>
-        <div class="zoomui">
-          <button type="button" id="z-in"    aria-label="Zoom in">+</button>
-          <button type="button" id="z-out"   aria-label="Zoom out">&minus;</button>
-          <button type="button" id="z-reset" aria-label="Reset the view" title="Reset the view">&#9678;</button>
+        <div id="map" role="application" aria-label="Map of National Park Service units and offices with disapproved financial assistance agreements"></div>
+        <div class="regionjump">
+          <button type="button" data-view="all">All</button>
+          <button type="button" data-view="lower48">Lower 48</button>
+          <button type="button" data-view="ak">Alaska</button>
+          <button type="button" data-view="hi">Hawai&#699;i</button>
         </div>
         <div class="zoomhint" id="zoomhint" hidden aria-hidden="true"></div>
-        <div class="zoomlevel" id="zoomlevel" hidden aria-hidden="true"></div>
       </div>
       <div class="mapfoot">
-        <span class="key"><svg width="13" height="13" viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="5" fill="#d2781e" fill-opacity=".8" stroke="#fff" stroke-width="1.2"></circle></svg> Park unit</span>
-        <span class="key"><svg width="13" height="13" viewBox="0 0 13 13"><rect x="1.6" y="1.6" width="9.8" height="9.8" fill="#d2781e" fill-opacity=".8" stroke="#fff" stroke-width="1.2"></rect></svg> Office, program, or network</span>
-        <span class="key"><svg width="32" height="15" viewBox="0 0 32 15"><circle cx="5.5" cy="7.5" r="3.6" fill="#d2781e" fill-opacity=".8" stroke="#fff" stroke-width="1.2"></circle><circle cx="22" cy="7.5" r="7" fill="#d2781e" fill-opacity=".8" stroke="#fff" stroke-width="1.2"></circle></svg> Size: agreements disapproved</span>
+        <span class="key"><i class="sw circ"></i> Park unit</span>
+        <span class="key"><i class="sw"></i> Office, program, or network</span>
+        <span class="key"><i class="sw circ sm"></i><i class="sw circ lg"></i> Size: agreements disapproved</span>
         <span id="tally"></span>
         <span class="cwp">Source: NPS FAST &middot; <a href="https://westernpriorities.org" target="_blank" rel="noopener">westernpriorities.org</a></span>
       </div>
@@ -315,102 +327,119 @@ svg.map.grabbing{cursor:grabbing}
   var f = { progs: PROG_ORDER.slice(), region:'', q:'' };
 
   /* ---------- map geometry ---------- */
-  var gs = document.getElementById('g-states');
-  D.states.forEach(function(s){
-    var p = document.createElementNS(NS,'path');
-    p.setAttribute('d', s[1]); p.setAttribute('class','state');
-    gs.appendChild(p);
+  /* ---------- basemap ---------------------------------------------------
+     CARTO Positron: pale enough that the orange markers stay dominant, with
+     roads, water and place names appearing as the reader zooms in. Tiles are
+     the page's only external dependency; if they are blocked the container
+     falls back to the CWP land grey and the markers still read. */
+  var map = L.map('map', {
+    zoomControl: true,
+    attributionControl: true,
+    worldCopyJump: false,
+    minZoom: 2,
+    maxZoom: 16,
+    /* Integer zoom only. Fractional levels make Leaflet CSS-scale the tiles,
+       which leaves the basemap's place names soft and oversized. */
+    zoomSnap: 1,
+    zoomDelta: 1,
+    wheelPxPerZoomLevel: 120
   });
+  /* Esri Light Gray Canvas, in two layers: the pale base, then a labels layer
+     drawn over the markers' shadow pane so place names stay readable without
+     sitting on top of the data. Keyless and unwatermarked, unlike CARTO's
+     basemaps, which now require a registered API key. */
+  var ESRI = 'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/',
+      ESRI_CREDIT = 'Tiles &copy; <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a>' +
+                    ' &mdash; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright"' +
+                    ' target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+  L.tileLayer(ESRI + 'World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16, maxNativeZoom: 16, attribution: ESRI_CREDIT
+  }).addTo(map);
+  L.tileLayer(ESRI + 'World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16, maxNativeZoom: 16, pane: 'shadowPane', attribution: ''
+  }).addTo(map);
+  map.attributionControl.setPrefix(
+    '<a href="https://westernpriorities.org" target="_blank" rel="noopener">Center for Western Priorities</a>');
 
-  /* Markers keep a constant on-screen size as the map scales, so zooming in
-     pulls overlapping locations apart instead of magnifying one blob. */
-  var zoomK = 1;
-  function size(n){ return (3.6 + Math.sqrt(n) * 2.5) / zoomK; }
-  var gm = document.getElementById('g-marks'), mkEls = {};
-  units.slice().sort(function(a,b){ return b.n - a.n; }).forEach(function(u){
-    var el = document.createElementNS(NS, u.kind === 'park' ? 'circle' : 'rect');
-    if(u.kind === 'park'){ el.setAttribute('cx', u.xy[0]); el.setAttribute('cy', u.xy[1]); }
-    el.setAttribute('class','mk');
-    el.setAttribute('tabindex','0'); el.setAttribute('role','button');
-    el.addEventListener('click', function(){ if(!moved) pick(u.code); });
-    el.addEventListener('keydown', function(e){
-      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(u.code); }
+  /* ---------- markers ---------- */
+  function px(n){ return Math.round((7 + Math.sqrt(n) * 5) * 10) / 10; }
+
+  var mkEls = {}, layers = {};
+  units.filter(function(u){ return u.ll; }).slice()
+    .sort(function(a, b){ return b.n - a.n; })   // small markers draw on top
+    .forEach(function(u){
+      var d = px(u.n);
+      var icon = L.divIcon({
+        className: '',
+        html: '<span class="mk ' + (u.kind === 'park' ? 'circ' : 'sq') + '" data-code="' + u.code +
+              '" style="width:' + d + 'px;height:' + d + 'px"></span>',
+        iconSize: [d, d],
+        iconAnchor: [d / 2, d / 2]
+      });
+      var m = L.marker(u.ll, { icon: icon, keyboard: true, riseOnHover: true }).addTo(map);
+      /* Leaflet's `alt` option only applies to image icons, so a div icon would
+         otherwise reach a screen reader as an unlabelled button. */
+      m.on('add', function(){ label(u); });
+      label(u);
+      m.on('click', function(){ pick(u.code); });
+      m.on('keypress', function(e){ if(e.originalEvent.key === 'Enter') pick(u.code); });
+      m.bindTooltip(function(){
+        var n = visibleFor(u.code).length;
+        return '<b>' + esc(u.name) + '</b><span>' + n + ' agreement' + (n === 1 ? '' : 's') +
+               (u.place ? ' &middot; ' + esc(u.place) : '') + '</span>';
+      }, { className: 'tip', direction: 'top', offset: [0, -4], sticky: false });
+      layers[u.code] = m;
+      mkEls[u.code] = m;
     });
-    el.addEventListener('mouseenter', function(e){ tipOn(u, e); });
-    el.addEventListener('mousemove', tipMove);
-    el.addEventListener('mouseleave', tipOff);
-    el.addEventListener('focus', function(){ tipOn(u, null, el); });
-    el.addEventListener('blur', tipOff);
-    gm.appendChild(el);
-    mkEls[u.code] = el;
-  });
+
+  function span(el){ return el && el.getElement() ? el.getElement().querySelector('.mk') : null; }
+  function label(u){
+    var lay = layers[u.code] || mkEls[u.code];
+    var el = lay && lay.getElement && lay.getElement();
+    if(!el) return;
+    var n = lastPer[u.code];
+    if(n === undefined) n = u.n;
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-label', u.name + ', ' + n + ' agreement' + (n === 1 ? '' : 's') + ' disapproved');
+  }
   function draw(u, n){
-    var el = mkEls[u.code], r = size(n);
-    if(u.kind === 'park'){ el.setAttribute('r', r.toFixed(1)); }
-    else {
-      var s = r * 1.72;
-      el.setAttribute('x', (u.xy[0] - s/2).toFixed(1));
-      el.setAttribute('y', (u.xy[1] - s/2).toFixed(1));
-      el.setAttribute('width', s.toFixed(1)); el.setAttribute('height', s.toFixed(1));
-    }
+    var el = span(layers[u.code]);
+    if(!el) return;
+    var d = px(n);
+    el.style.width = d + 'px';
+    el.style.height = d + 'px';
+    var ic = layers[u.code].options.icon;
+    ic.options.iconSize = [d, d];
+    ic.options.iconAnchor = [d / 2, d / 2];
+    var wrap = layers[u.code].getElement();
+    if(wrap){ wrap.style.width = d + 'px'; wrap.style.height = d + 'px';
+              wrap.style.marginLeft = (-d / 2) + 'px'; wrap.style.marginTop = (-d / 2) + 'px'; }
   }
 
-
-  /* ---------- zoom and pan ----------------------------------------------
-     Hand-rolled rather than pulled from a library, because the page has to
-     stay a single self-contained file with no external scripts.
-
-     Wheel behaviour depends on where the page is running. Standalone, the
-     layout is fixed-height and nothing scrolls behind the map, so a plain
-     wheel zooms. Inside an iframe on the CWP site the parent page does
-     scroll, and swallowing the wheel would trap the reader at the map, so
-     there a plain wheel scrolls the article and ctrl/cmd + wheel zooms. */
-  var svg = document.getElementById('map'),
-      vp = document.getElementById('viewport'),
-      hint = document.getElementById('zoomhint'),
-      levelBox = document.getElementById('zoomlevel'),
-      W = 960, H = 560, MIN_K = 1, MAX_K = 14,
-      k = 1, tx = 0, ty = 0,
-      embedded = window.parent && window.parent !== window;
-
-  function clampT(){
-    tx = Math.min(0, Math.max(W * (1 - k), tx));
-    ty = Math.min(0, Math.max(H * (1 - k), ty));
+  /* ---------- views ---------- */
+  var VIEWS = {
+    all:     null,                                   // fitted to every marker
+    lower48: [[24.4, -125.0], [49.4, -66.9]],
+    ak:      [[51.0, -173.0], [71.5, -129.0]],
+    hi:      [[18.8, -160.3], [22.3, -154.7]]
+  };
+  var allBounds = L.latLngBounds(units.filter(function(u){ return u.ll; }).map(function(u){ return u.ll; }));
+  function go(view, animate){
+    var b = view === 'all' ? allBounds : L.latLngBounds(VIEWS[view]);
+    map.fitBounds(b, { padding: [34, 34], animate: !!animate });
   }
-  function apply(){
-    clampT();
-    zoomK = k;
-    vp.setAttribute('transform', 'translate(' + tx.toFixed(2) + ',' + ty.toFixed(2) + ') scale(' + k.toFixed(4) + ')');
-    units.forEach(function(u){ draw(u, lastPer[u.code] || 1); });
-    document.getElementById('z-in').disabled = k >= MAX_K - 1e-6;
-    document.getElementById('z-out').disabled = k <= MIN_K + 1e-6;
-    document.getElementById('z-reset').disabled = k <= MIN_K + 1e-6;
-    levelBox.hidden = k <= MIN_K + 1e-6;
-    levelBox.textContent = k.toFixed(1) + '\u00d7';
-    svg.classList.toggle('grab', k > MIN_K);
-  }
-  /* Zoom about a fixed point so the map grows out from the cursor. */
-  function zoomAbout(cx, cy, factor){
-    var nk = Math.min(MAX_K, Math.max(MIN_K, k * factor));
-    if(nk === k) return;
-    tx = cx - (cx - tx) * (nk / k);
-    ty = cy - (cy - ty) * (nk / k);
-    k = nk;
-    apply();
-  }
-  function centre(){ return [W / 2, H / 2]; }
-  /* Client pixels to viewBox units, which also undoes the letterboxing that
-     preserveAspectRatio introduces at non-matching aspect ratios. */
-  function toMap(e){
-    var m = svg.getScreenCTM();
-    if(!m) return centre();
-    var p = svg.createSVGPoint();
-    p.x = e.clientX; p.y = e.clientY;
-    p = p.matrixTransform(m.inverse());
-    return [p.x, p.y];
-  }
+  go('all', false);
+  Array.prototype.forEach.call(document.querySelectorAll('.regionjump button'), function(btn){
+    btn.addEventListener('click', function(){ go(btn.getAttribute('data-view'), true); });
+  });
 
-  var hintTimer;
+  /* ---------- wheel behaviour ----------------------------------------------
+     Standalone, the layout is fixed-height and nothing scrolls behind the map,
+     so the wheel zooms. Embedded in an article the parent page does scroll, and
+     swallowing the wheel would trap the reader at the map, so there a plain
+     wheel scrolls the page and ctrl/cmd + wheel zooms. */
+  var embedded = window.parent && window.parent !== window,
+      hint = document.getElementById('zoomhint'), hintTimer;
   function showHint(msg){
     hint.textContent = msg;
     hint.hidden = false;
@@ -421,117 +450,20 @@ svg.map.grabbing{cursor:grabbing}
       setTimeout(function(){ hint.hidden = true; }, 200);
     }, 1400);
   }
-
-  svg.addEventListener('wheel', function(e){
-    if(embedded && !(e.ctrlKey || e.metaKey)){
-      showHint((navigator.platform.indexOf('Mac') === 0 ? '\u2318' : 'Ctrl') + ' + scroll to zoom the map');
-      return;                       // let the article keep scrolling
-    }
-    e.preventDefault();
-    var c = toMap(e);
-    // Normalise the delta; trackpads and mice report wildly different units.
-    var step = Math.exp(-Math.max(-4, Math.min(4, e.deltaY / 100)) * 0.28);
-    zoomAbout(c[0], c[1], step);
-  }, { passive: false });
-
-  svg.addEventListener('dblclick', function(e){
-    var c = toMap(e);
-    zoomAbout(c[0], c[1], e.shiftKey ? 1 / 1.8 : 1.8);
-  });
-
-  /* Drag to pan. Pointer events cover mouse, pen and single-finger touch. */
-  var drag = null, moved = false, pointers = new Map(), pinchStart = null;
-  svg.addEventListener('pointerdown', function(e){
-    // Reset before the early returns below: leaving this set from a previous
-    // drag would suppress every later marker click.
-    moved = false;
-    pointers.set(e.pointerId, [e.clientX, e.clientY]);
-    if(pointers.size === 2){ drag = null; pinchStart = pinchState(); return; }
-    if(k <= MIN_K) return;
-    drag = { x: e.clientX, y: e.clientY, tx: tx, ty: ty };
-    svg.setPointerCapture(e.pointerId);
-    svg.classList.add('grabbing');
-  });
-  svg.addEventListener('pointermove', function(e){
-    if(pointers.has(e.pointerId)) pointers.set(e.pointerId, [e.clientX, e.clientY]);
-    if(pointers.size === 2 && pinchStart){ pinch(); return; }
-    if(!drag) return;
-    var r = svg.getBoundingClientRect();
-    var unitsPerPx = W / (r.width || 1);
-    var dx = (e.clientX - drag.x) * unitsPerPx, dy = (e.clientY - drag.y) * unitsPerPx;
-    if(Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) moved = true;
-    tx = drag.tx + dx; ty = drag.ty + dy;
-    apply();
-  });
-  function endPointer(e){
-    pointers.delete(e.pointerId);
-    if(pointers.size < 2) pinchStart = null;
-    if(drag){ drag = null; svg.classList.remove('grabbing'); }
-    if(moved) setTimeout(function(){ moved = false; }, 0);
+  if(embedded){
+    /* Gate the wheel one event earlier than Leaflet sees it. Toggling
+       scrollWheelZoom from a listener on the map container is a beat too late:
+       the first ctrl+wheel still reaches the page and scrolls it. Capturing on
+       the parent means the decision is made before Leaflet's own handler runs. */
+    document.getElementById('mapinner').addEventListener('wheel', function(e){
+      if(e.ctrlKey || e.metaKey){
+        e.preventDefault();          // zooming, so neither scroll nor browser zoom
+      } else {
+        e.stopPropagation();         // Leaflet never sees it; the article scrolls
+        showHint((navigator.platform.indexOf('Mac') === 0 ? '\u2318' : 'Ctrl') + ' + scroll to zoom the map');
+      }
+    }, { capture: true, passive: false });
   }
-  svg.addEventListener('pointerup', endPointer);
-  svg.addEventListener('pointercancel', endPointer);
-  svg.addEventListener('pointerleave', function(e){ if(!svg.hasPointerCapture || !svg.hasPointerCapture(e.pointerId)) endPointer(e); });
-
-  function pinchState(){
-    var pts = Array.from(pointers.values());
-    var dx = pts[0][0] - pts[1][0], dy = pts[0][1] - pts[1][1];
-    return { dist: Math.hypot(dx, dy) || 1, k: k };
-  }
-  function pinch(){
-    var now = pinchState();
-    var pts = Array.from(pointers.values());
-    var mid = { clientX: (pts[0][0] + pts[1][0]) / 2, clientY: (pts[0][1] + pts[1][1]) / 2 };
-    var target = pinchStart.k * (now.dist / pinchStart.dist);
-    var c = toMap(mid);
-    zoomAbout(c[0], c[1], target / k);
-  }
-
-  document.getElementById('z-in').addEventListener('click', function(){ var c = centre(); zoomAbout(c[0], c[1], 1.6); });
-  document.getElementById('z-out').addEventListener('click', function(){ var c = centre(); zoomAbout(c[0], c[1], 1 / 1.6); });
-  document.getElementById('z-reset').addEventListener('click', function(){ k = 1; tx = 0; ty = 0; apply(); });
-
-  /* Keyboard equivalents, so zoom is not mouse-only. */
-  svg.setAttribute('tabindex', '0');
-  svg.addEventListener('keydown', function(e){
-    var c = centre(), pan = 40 / k;
-    if(e.key === '+' || e.key === '=') { zoomAbout(c[0], c[1], 1.6); }
-    else if(e.key === '-' || e.key === '_') { zoomAbout(c[0], c[1], 1 / 1.6); }
-    else if(e.key === '0') { k = 1; tx = 0; ty = 0; apply(); }
-    else if(e.key === 'ArrowLeft')  { tx += pan; apply(); }
-    else if(e.key === 'ArrowRight') { tx -= pan; apply(); }
-    else if(e.key === 'ArrowUp')    { ty += pan; apply(); }
-    else if(e.key === 'ArrowDown')  { ty -= pan; apply(); }
-    else return;
-    e.preventDefault();
-  });
-
-  /* ---------- tooltip ---------- */
-  var card = document.getElementById('mapinner'), tip = null;
-  function tipOn(u, e, el){
-    tipOff();
-    var n = visibleFor(u.code).length;
-    tip = document.createElement('div'); tip.className = 'tip';
-    tip.innerHTML = '<b>' + esc(u.name) + '</b><span>' + n + ' agreement' + (n===1?'':'s') +
-      (u.place ? ' &middot; ' + esc(u.place) : '') + '</span>';
-    card.appendChild(tip);
-    if(e) tipMove(e);
-    else if(el){
-      var r = el.getBoundingClientRect(), cr = card.getBoundingClientRect();
-      place(r.left - cr.left + r.width/2, r.top - cr.top);
-    }
-  }
-  function tipMove(e){
-    if(!tip) return;
-    var cr = card.getBoundingClientRect();
-    place(e.clientX - cr.left, e.clientY - cr.top);
-  }
-  function place(x, y){
-    var w = tip.offsetWidth, h = tip.offsetHeight;
-    tip.style.left = Math.max(4, Math.min(x - w/2, card.clientWidth - w - 4)) + 'px';
-    tip.style.top = Math.max(4, y - h - 12) + 'px';
-  }
-  function tipOff(){ if(tip){ tip.remove(); tip = null; } }
 
   /* ---------- sidebar controls ---------- */
   var progs = document.getElementById('progs'), progEls = {};
@@ -643,11 +575,14 @@ svg.map.grabbing{cursor:grabbing}
     });
 
     units.forEach(function(u){
-      var el = mkEls[u.code], n = per[u.code] || 0;
-      el.classList.toggle('dim', n === 0);
-      el.classList.toggle('sel', u.code === sel);
-      el.setAttribute('aria-label', u.name + ', ' + n + ' agreement' + (n===1?'':'s') + ' disapproved');
-      draw(u, n || 1);
+      var lay = layers[u.code]; if(!lay) return;
+      var n = per[u.code] || 0, el = span(lay);
+      if(n === 0){ if(map.hasLayer(lay)) map.removeLayer(lay); return; }
+      if(!map.hasLayer(lay)) lay.addTo(map);
+      draw(u, n);
+      label(u);
+      el = span(lay);
+      if(el) el.classList.toggle('sel', u.code === sel);
     });
     offUnits.forEach(function(u){
       var n = per[u.code] || 0, b = offEls[u.code];
@@ -720,7 +655,6 @@ svg.map.grabbing{cursor:grabbing}
   }
 
   render();
-  apply();
 })();
 </script>
 </body>

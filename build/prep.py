@@ -3,21 +3,18 @@ import openpyxl, json, re, html
 import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC    = os.path.join(ROOT, 'data', 'source', 'verified-disapprovals-with-abstract-and-impact.xlsx')
-STATES = os.path.join(ROOT, 'data', 'us-states-albers.json')
 OUT    = os.path.join(ROOT, 'data', 'disapprovals.json')
 
-# Projected x,y in a 960x560 AlbersUSA frame, derived from NPS Land Resources Division
-# boundary centroids (services1.arcgis.com NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service).
-XY = {"GLAC":[280.5,47.6],"REDW":[99.2,159],"MEMY":[624.3,405],"BOHA":[900.7,151.4],"FLFO":[376.5,264],
-"LARO":[215.1,48.4],"GRSA":[368.9,287.3],"HAVO":[364.7,538.9],"WACO":[503.4,423.2],"PETR":[344.5,339.7],
-"JOTR":[187.1,340.2],"MIMA":[893.5,149.2],"LYJO":[477.2,450.7],"ORPI":[231.5,388.9],"MALU":[721.6,366.6],
-"BRCA":[263,277],"WHIS":[116,178.3],"PORE":[96.6,227.9],"TUSK":[207.6,291.3],"YOSE":[147.8,246.8],
-"DEVA":[179.7,281.7],"CACO":[913.4,152.5],"GATE":[864.9,196.2],"VALL":[350.2,324],"GLCA":[284.6,284.1],
-"TUAI":[702.4,396],"NERI":[764.2,273.5],"PUHO":[351.9,536.8],"CHIC":[507.1,364],"CRMO":[264.2,153.8],
-"CARE":[281.6,267.4],"LAKE":[222.7,297.6],"MORA":[164,57.6],"AZRU":[328.1,302.2],"MANZ":[164.2,274.7],
-"ZION":[248.2,280.5],"JODA":[180.5,111.4],"GOGA":[99.4,231.4],"EFMO":[595.8,182.5],"HALE":[347.2,510.3],
-"ARCH":[307.8,260],"BELA":[128.9,457.4],"YELL":[312.3,137.2],"MOJA":[199.1,317.2],"DENA":[169.8,478.2],
-"ORCA":[113,145.1],"SEKI":[157.3,273.9]}
+# Park unit codes. Everything else in the data is an office, a national
+# program, or a monitoring network, which the map draws as a square.
+PARKS = {
+    'ARCH', 'AZRU', 'BELA', 'BOHA', 'BRCA', 'CACO', 'CARE', 'CHIC', 'CRMO',
+    'DENA', 'DEVA', 'EFMO', 'FLFO', 'GATE', 'GLAC', 'GLCA', 'GOGA', 'GRSA',
+    'HALE', 'HAVO', 'JODA', 'JOTR', 'LAKE', 'LARO', 'LYJO', 'MALU', 'MANZ',
+    'MEMY', 'MIMA', 'MOJA', 'MORA', 'NERI', 'ORCA', 'ORPI', 'PETR', 'PORE',
+    'PUHO', 'REDW', 'SEKI', 'TUAI', 'TUSK', 'VALL', 'WACO', 'WHIS', 'YELL',
+    'YOSE', 'ZION',
+}
 
 # Official unit names from the same NPS service.
 NAMES = {
@@ -52,15 +49,6 @@ NAMES = {
 }
 
 
-# Offices, programs, and monitoring networks: projected from the addresses NPS publishes
-# for each one (geocoded via OpenStreetMap Nominatim), same 960x560 AlbersUSA frame.
-OFFICE_XY = {
- "WASO":[823.6,241.7],"CRAD":[823.6,241.7],"RTCA":[823.6,241.7],"NRSS":[823.6,241.7],
- "AKRO":[173.1,493.3],"SWAN":[173.1,493.3],"IMRO":[380.3,247.9],"NERO":[848.1,213.9],
- "PWRO":[103.0,235.7],"JUBA":[104.7,233.1],"MWAC":[513.1,231.6],"HPTC":[816.3,233.1],
- "NTIR":[359.3,330.2],"CHBA":[831.8,238.2],"KLMN":[123.8,146.6],"MOJN":[214.2,301.6],
- "SIEN":[150.8,277.6],
-}
 PLACE = {
  "WASO":"NPS headquarters, Washington, DC","CRAD":"NPS headquarters, Washington, DC",
  "RTCA":"NPS headquarters, Washington, DC","NRSS":"NPS headquarters, Washington, DC",
@@ -216,39 +204,17 @@ for rec in recs:
     u = rec['unit']
     if u not in units:
         units[u] = {'code': u, 'name': NAMES.get(u, u), 'region': rec['region'],
-                    'xy': XY.get(u) or OFFICE_XY.get(u),
-                    'kind': 'park' if u in XY else 'office',
+                    'll': LATLON.get(u),
+                    'kind': 'park' if u in PARKS else 'office',
                     'place': PLACE.get(u, ''), 'n': 0, 'rev': 0}
     units[u]['n'] += 1
     if rec['rev']: units[u]['rev'] += 1
 
 
-import math
-def spread(us):
-    """Nudge markers that land on top of each other into a tight ring so all stay clickable."""
-    groups = {}
-    for u in us:
-        if not u['xy']: continue
-        key = None
-        for k in groups:
-            if math.dist(u['xy'], groups[k][0]['xy']) < 9: key = k; break
-        if key is None: groups[len(groups)] = [u]
-        else: groups[key].append(u)
-    for g in groups.values():
-        if len(g) < 2: continue
-        cx = sum(u['xy'][0] for u in g)/len(g); cy = sum(u['xy'][1] for u in g)/len(g)
-        r = 5.5 + 1.3*len(g)
-        for i, u in enumerate(g):
-            a = -math.pi/2 + 2*math.pi*i/len(g)
-            u['xy'] = [round(cx + r*math.cos(a), 1), round(cy + r*math.sin(a), 1)]
-            u['nudged'] = True
-    return us
-
 payload = {
     'recs': recs,
-    'units': spread(sorted(units.values(), key=lambda u: (-u['n'], u['name']))),
+    'units': sorted(units.values(), key=lambda u: (-u['n'], u['name'])),
     'regions': REGIONS,
-    'states': json.load(open(STATES)),
 }
 json.dump(payload, open(OUT, 'w'))
 
@@ -261,7 +227,9 @@ CSV_OUT = os.path.join(ROOT, 'data', 'nps-disapprovals-2026.csv')
 COLS = ['fast_id','status','region_code','region_name','unit_code','unit_name','unit_type',
         'mapped_place','latitude','longitude','recipient','title','assistance_listing',
         'program','doi_decision_date','project_abstract','project_impact','review_notes','amount_usd']
-with open(CSV_OUT, 'w', encoding='utf-8', newline='') as fh:
+# utf-8-sig: the BOM is what makes Excel on Windows read the accented and curly
+# characters correctly instead of showing mojibake of its own.
+with open(CSV_OUT, 'w', encoding='utf-8-sig', newline='') as fh:
     w = _csv.DictWriter(fh, fieldnames=COLS, lineterminator='\n')
     w.writeheader()
     for r in recs:
@@ -284,9 +252,9 @@ print('wrote', CSV_OUT)
 
 print('source:', source_kind)
 print('records', len(recs))
-print('offmap placed', sum(1 for u in units.values() if u['kind']=='office' and u['xy']))
-print('nudged', sum(1 for u in payload['units'] if u.get('nudged')))
-print('units', len(units), 'mapped', sum(1 for u in units.values() if u['xy']), 'offmap', sum(1 for u in units.values() if not u['xy']))
+print('offices', sum(1 for u in units.values() if u['kind']=='office'))
+print('missing coords', [u['code'] for u in units.values() if not u['ll']])
+print('units', len(units), 'with coords', sum(1 for u in units.values() if u['ll']))
 print('disapproved', sum(1 for r in recs if r['status']=='Disapproved'))
 print('reversed', sum(1 for r in recs if r['rev']))
 print('programs', sorted(set(r['prog'] for r in recs)))

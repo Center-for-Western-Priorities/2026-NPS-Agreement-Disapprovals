@@ -13,7 +13,7 @@ LF line endings. One row per disapproved agreement request.
 | `unit_name` | Full name of that unit, office, or program |
 | `unit_type` | `park unit`, or `office, program, or network` |
 | `mapped_place` | For an office, program, or network: the city its marker sits in. For a park: the park name |
-| `latitude`, `longitude` | Decimal degrees, WGS 84. Parks use the NPS boundary centroid; offices use their published address. These are the true coordinates, not the nudged marker positions the map draws |
+| `latitude`, `longitude` | Decimal degrees, WGS 84. Parks use the NPS boundary centroid; offices use their published address. The map draws each marker at exactly these coordinates |
 | `recipient` | The partner organization that would have received the funds |
 | `title` | Title of the proposed project |
 | `assistance_listing` | The assistance listing (CFDA) category, as recorded |

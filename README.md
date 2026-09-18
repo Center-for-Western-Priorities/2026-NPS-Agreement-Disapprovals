@@ -26,10 +26,9 @@ redeploys on every push to `main`.
 Filter by program or region, search across every field, and download the full dataset
 as CSV from the sidebar.
 
-Scroll to zoom, drag to pan, double-click to zoom in, and shift double-click to zoom
-back out. There are buttons in the top-right corner too, and the map takes `+`, `-`,
-`0`, and the arrow keys when focused. Markers hold a constant size as you zoom, so
-zooming in separates overlapping locations rather than magnifying a blob.
+Scroll to zoom, drag to pan, and use the region buttons to jump between the lower 48,
+Alaska, and Hawaiʻi. Markers hold a constant size as you zoom, so zooming separates
+overlapping locations rather than magnifying them.
 
 Inside an iframe the plain scroll wheel is left to the host page, so readers are not
 trapped at the map partway down an article. Ctrl and scroll, or cmd and scroll on a
@@ -56,16 +55,16 @@ none is shown.
 ## Repository layout
 
 ```
-index.html                     the built site, self-contained, ~280 KB
+index.html                     the built site, one file, ~290 KB
 assets/logo/                   CWP logo, SVG; the mark is also inlined in the page
 build/
   prep.py                      records  ->  data/disapprovals.json + the published CSV
   build.py                     data + template  ->  index.html
   template.html                page markup, styles, and behavior
+  vendor/                      Leaflet's stylesheet, inlined at build time
 data/
   nps-disapprovals-2026.csv    the published dataset
-  disapprovals.json            processed records, marker placements, state geometry
-  us-states-albers.json        state outlines, pre-projected to Albers USA
+  disapprovals.json            processed records and marker coordinates
 docs/
   METHODOLOGY.md               what is counted, what is excluded, known limits
   DATA-DICTIONARY.md           every CSV column, and what was done to the text
@@ -94,9 +93,11 @@ Editing `index.html` directly works, but the next build overwrites it.
 
 ## Hosting and embedding
 
-`index.html` is one file with no external scripts, no tile server, and no API key. It
-requests the Google Fonts stylesheet and falls back to Georgia and a system sans if
-that is blocked. Serve it from anywhere that does static files.
+`index.html` is a single file. It pulls Leaflet from cdnjs, the Google Fonts
+stylesheet, and basemap tiles from Esri's Light Gray Canvas service; everything else,
+including the data and Leaflet's own CSS, ships inside the page. No API key and no
+build step at serve time, so it runs from anywhere that serves static files. If the
+tile service is unreachable the markers still draw over a plain grey field.
 
 **GitHub Pages**, which is what serves the live map above. Settings → Pages →
 Source "Deploy from a branch", branch `main`, folder `/ (root)`.
@@ -122,6 +123,6 @@ Note that the CSV download link is relative, so it resolves against wherever
 - Agreement records: NPS FAST financial assistance tracking, status as of August 24, 2026
 - Park coordinates: [NPS Land Resources Division boundary centroids](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/NPS_Land_Resources_Division_Boundary_and_Tract_Data_Service/FeatureServer)
 - Office locations: addresses published by NPS, listed individually in [docs/PLACEMENTS.md](docs/PLACEMENTS.md)
-- State outlines: [us-atlas](https://github.com/topojson/us-atlas), simplified and projected to Albers USA
+- Basemap: [Esri Light Gray Canvas](https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer), credited to Esri, HERE, Garmin, and OpenStreetMap contributors
 
 Center for Western Priorities · [westernpriorities.org](https://westernpriorities.org)

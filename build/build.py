@@ -17,6 +17,11 @@ DATA = os.path.join(ROOT, 'data', 'disapprovals.json')
 OUT  = os.path.join(ROOT, 'index.html')
 
 tpl = open(TPL, encoding='utf-8').read()
+
+# Leaflet's stylesheet is inlined: artifact pages only admit external
+# stylesheets from Google Fonts, so the library CSS has to ship in the page.
+CSS = os.path.join(ROOT, 'build', 'vendor', 'leaflet-1.9.4.css')
+tpl = tpl.replace('__LEAFLET_CSS__', open(CSS, encoding='utf-8').read().strip())
 payload = open(DATA, encoding='utf-8').read()
 
 # Guard the JSON so nothing inside it can close the <script> element, and so

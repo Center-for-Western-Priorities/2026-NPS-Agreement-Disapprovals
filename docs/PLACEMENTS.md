@@ -42,27 +42,21 @@ The Natural Resource Stewardship and Science directorate runs much of its work o
 Fort Collins, Colorado, and no address is published for the directorate as such. Its
 four agreements are placed at headquarters because the source file files them under
 WASO. If the submitting office is confirmed to be Fort Collins, change the `NRSS`
-entry in `OFFICE_XY` in `build/prep.py` and rerun the build.
+entry in `LATLON` and `PLACE` in `build/prep.py` and rerun the build.
 
 Two entities that appear in the source workbook have no marker on this map, because
 their only agreements are among the seven excluded records: the Southwest Alaska I&M
 Network (Anchorage) and the Rivers, Trails, and Conservation Assistance program.
 
-## Overlap handling
+## Overlap at low zoom
 
-Squares and circles are placed at their true projected positions first. Any group of
-markers landing within nine pixels of each other on the 960-pixel map frame is then
-spread around the group's center on a small ring, so every marker stays clickable.
-The offset is deterministic and applied in `spread()` in `build/prep.py`.
+Every marker is drawn at its true coordinate. Several sit close enough to overlap
+when the whole country is in view: the four Washington-area entries, Lake Mead with
+the Mojave Desert Network, which is administered from Boulder City on the Lake Mead
+boundary, Oregon Caves with the Klamath Network in Ashland, Sequoia and Kings Canyon
+with the Sierra Nevada Network, Golden Gate with the Pacific West Regional Office and
+the Anza trail office, and Boston Harbor Islands with Minute Man.
 
-Groups affected by the current data:
-
-- Washington area: WASO, CRAD, NRSS, and the Chesapeake Bay Office
-- Lake Mead National Recreation Area and the Mojave Desert Network, which is
-  administered from Boulder City on the Lake Mead boundary
-- Oregon Caves National Monument and the Klamath Network in Ashland
-- Sequoia and Kings Canyon and the Sierra Nevada Network, administered from the same
-  headquarters
-- Golden Gate National Recreation Area, the Pacific West Regional Office, and the
-  Anza trail office
-- Boston Harbor Islands and Minute Man
+Zooming separates them, since markers keep a constant on-screen size as the map
+scales. Each is also listed by name in the sidebar, under "Not tied to one park" for
+the offices and programs, so nothing is reachable only by hitting a marker.

@@ -85,17 +85,11 @@ is listed in [PLACEMENTS.md](PLACEMENTS.md).
 Sequoia and Kings Canyon share one administrative unit code (SEKI) and are drawn at
 the Sequoia centroid.
 
-Markers hold a constant on-screen size as the map is zoomed, so the circle area
-encodes the agreement count at the default view and zooming separates neighbours
-rather than enlarging them.
-
-Markers whose projected positions fall within nine pixels of each other are spread
-around the group's center on a small ring so each stays clickable. The largest
-displacement on the current data is under 12 pixels on a 960-pixel-wide map, roughly
-40 miles at the scale of the contiguous states. Affected groups: the four Washington
-area entries, Lake Mead with the Mojave Desert Network, Oregon Caves with the Klamath
-Network, Sequoia with the Sierra Nevada Network, Golden Gate with two Bay Area
-offices, and Boston Harbor Islands with Minute Man.
+Every marker sits at its true coordinate. Markers hold a constant on-screen size
+as the map is zoomed, so the circle area encodes the agreement count and zooming
+separates neighbouring locations rather than enlarging them. Earlier drafts nudged
+overlapping markers apart because the map could not zoom; that is gone, and no
+position on the map is adjusted for legibility.
 
 ## Known limits
 
@@ -103,7 +97,10 @@ offices, and Boston Harbor Islands with Minute Man.
    and Science, Rivers Trails and Conservation Assistance) have no separately
    published street address and sit at NPS headquarters. NRSS in particular has a
    large operational presence in Fort Collins, Colorado. If the submitting office is
-   known, correct `OFFICE_XY` and `PLACE` in `build/prep.py`.
+   known, correct `LATLON` and `PLACE` in `build/prep.py`.
 2. A monitoring network's work happens across its member parks, not at its office.
    The square marks where the network is administered, which the detail panel states.
 3. The status snapshot is a single date. Any later DOI action is not reflected.
+4. Basemap tiles come from Esri's Light Gray Canvas service. They are the page's
+   only external dependency. If the service is unreachable the markers still draw,
+   over a plain grey field.
