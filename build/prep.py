@@ -140,7 +140,28 @@ def clean(v):
     s = re.sub(r'\s+', ' ', s).strip()
     return s
 
-CSV = os.path.join(ROOT, 'data', 'nps-disapprovals-2026.csv')
+CSV  = os.path.join(ROOT, 'data', 'nps-disapprovals-2026.csv')
+FUND = os.path.join(ROOT, 'data', 'source', 'disapproval-funding-this-action.csv')
+
+def load_funding():
+    """Federal funding obligated by each proposed action, keyed by FAST ID.
+    Read from the source extract when it is present, otherwise from the
+    published CSV, which carries the same figures in its own column."""
+    import csv as _csv
+    out = {}
+    if os.path.exists(FUND):
+        with open(FUND, encoding='utf-8-sig', newline='') as fh:
+            for row in _csv.DictReader(fh):
+                if row['ID'].strip():
+                    out[int(row['ID'])] = float(row['FED FUNDING THIS ACTION'])
+        return out, 'funding extract'
+    with open(CSV, encoding='utf-8-sig', newline='') as fh:
+        for row in _csv.DictReader(fh):
+            if row.get('fed_funding_this_action'):
+                out[int(row['fast_id'])] = float(row['fed_funding_this_action'])
+    return out, 'published csv'
+
+FUNDING, funding_src = load_funding()
 
 def load_rows():
     """Prefer the source workbook. It is gitignored, so a fresh clone rebuilds
@@ -185,7 +206,7 @@ for r in rows:
         'impact': clean(r[10]),
         'notes': notes,
         'rev': reversed_,
-        'amt': amt,
+        'fund': FUNDING.get(int(r[1])),
     })
 
 def _fmt_iso(display_date):
@@ -226,7 +247,7 @@ import csv as _csv
 CSV_OUT = os.path.join(ROOT, 'data', 'nps-disapprovals-2026.csv')
 COLS = ['fast_id','status','region_code','region_name','unit_code','unit_name','unit_type',
         'mapped_place','latitude','longitude','recipient','title','assistance_listing',
-        'program','doi_decision_date','project_abstract','project_impact','review_notes','amount_usd']
+        'program','doi_decision_date','project_abstract','project_impact','review_notes','fed_funding_this_action']
 # utf-8-sig: the BOM is what makes Excel on Windows read the accented and curly
 # characters correctly instead of showing mojibake of its own.
 with open(CSV_OUT, 'w', encoding='utf-8-sig', newline='') as fh:
@@ -246,11 +267,17 @@ with open(CSV_OUT, 'w', encoding='utf-8-sig', newline='') as fh:
             'assistance_listing': r['listing'], 'program': r['prog'],
             'doi_decision_date': _fmt_iso(r['date']),
             'project_abstract': r['abstract'], 'project_impact': r['impact'],
-            'review_notes': r['notes'], 'amount_usd': r['amt'] if r['amt'] else '',
+            'review_notes': r['notes'],
+            'fed_funding_this_action': ('%.2f' % r['fund']) if r['fund'] is not None else '',
         })
 print('wrote', CSV_OUT)
 
-print('source:', source_kind)
+print('source:', source_kind, '| funding from:', funding_src)
+_missing = [r['id'] for r in recs if r['fund'] is None]
+print('records missing a funding figure:', _missing or 'none')
+_extra = sorted(set(FUNDING) - {r['id'] for r in recs})
+print('funding IDs with no matching record:', len(_extra), _extra)
+print('total funding blocked: $%s' % format(round(sum(r['fund'] or 0 for r in recs)), ','))
 print('records', len(recs))
 print('offices', sum(1 for u in units.values() if u['kind']=='office'))
 print('missing coords', [u['code'] for u in units.values() if not u['ll']])

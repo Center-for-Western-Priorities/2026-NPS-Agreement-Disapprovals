@@ -61,13 +61,29 @@ detail panel so the mapping is checkable:
 | 15.935 National Trail System Project | National Trails System |
 | 15.955 Martin Luther King Junior National Historic Site and Preservation District | MLK Historic Site preservation |
 
-## Dollar amounts
+## Funding blocked
 
-Only five records in the workbook carry a dollar figure, and those appear inside the
-free-text `ABSTRACT.REVIEW.NOTES` field rather than in a funding column. Where a
-figure is present it is shown on that agreement. **There is no defensible total, and
-none is displayed.** If a funding column exists in another FAST extract, adding it
-would be the single biggest improvement to this product.
+Every one of the 133 records carries a federal funding figure, from a second FAST
+extract giving `FED FUNDING THIS ACTION` by FAST ID. They total **$25,947,857**.
+
+That extract holds 143 rows. 133 match a record on this map exactly, with no record
+left without a figure. The other ten IDs (37, 140, 258, 799, 907, 1250, 1355, 1693,
+1832, 1942) do not appear in the disapprovals workbook at all, so there is no park,
+partner, or project text to attach them to, and they are excluded. Together they
+account for a further $4,995,244. If they belong to this batch, the published total
+is low by that amount, and resolving them is worth doing before the figure is used in
+print.
+
+None of the ten is one of the seven excluded records, so no reversal or cancellation
+is double-counted.
+
+An earlier draft parsed dollar amounts out of the free-text review notes. Those
+appeared on only five records, four of which were the reversals, and they are no
+longer used. The funding column replaces them.
+
+Figures are the amount each action would have obligated, not an appropriation or an
+annual budget line. The accurate phrasing is "agreements worth $25.9 million," not
+"$25.9 million cut from the Park Service." 
 
 ## Regions
 

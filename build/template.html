@@ -118,7 +118,9 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 
 .leaflet-tooltip.tip{background:var(--wordmark);color:#fff;border:0;border-radius:4px;
   padding:7px 10px;font-size:11.5px;line-height:1.35;box-shadow:0 2px 10px rgba(0,0,0,.22);
-  white-space:normal;max-width:240px}
+  /* width:max-content stops Leaflet's own sizing from squeezing the label into
+     a narrow column; max-width still wraps genuinely long park names. */
+  white-space:normal;width:max-content;max-width:250px}
 .leaflet-tooltip.tip:before{display:none}
 .tip b{display:block;font-size:12px;font-weight:700;margin-bottom:2px}
 .tip span{color:#c3cbc7}
@@ -182,6 +184,7 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
   text-transform:uppercase;padding:3px 7px;border-radius:3px;background:var(--surface-2);color:var(--ink-2);
   display:inline-flex;align-items:center;gap:5px}
 .badge i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.badge.fund{background:rgba(47,91,116,.10);color:var(--deep);font-variant-numeric:tabular-nums}
 .agr details{margin-top:9px}
 .agr summary{font-family:'Open Sans',system-ui,sans-serif;font-size:12px;font-weight:600;
   color:var(--steel);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:5px}
@@ -385,8 +388,10 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
       m.on('keypress', function(e){ if(e.originalEvent.key === 'Enter') pick(u.code); });
       m.bindTooltip(function(){
         var n = visibleFor(u.code).length;
+        var t = visibleFor(u.code);
         return '<b>' + esc(u.name) + '</b><span>' + n + ' agreement' + (n === 1 ? '' : 's') +
-               (u.place ? ' &middot; ' + esc(u.place) : '') + '</span>';
+               ' &middot; ' + moneyShort(totalFund(t)) + ' blocked' +
+               (u.place ? '<br>' + esc(u.place) : '') + '</span>';
       }, { className: 'tip', direction: 'top', offset: [0, -4], sticky: false });
       layers[u.code] = m;
       mkEls[u.code] = m;
@@ -566,11 +571,13 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
     document.getElementById('tally').textContent =
       (vis.length === recs.length ? vis.length : vis.length + ' of ' + recs.length) +
       ' disapproved agreement' + (vis.length === 1 ? '' : 's') +
-      ' at ' + nloc + ' location' + (nloc === 1 ? '' : 's');
+      ' \u00b7 ' + moneyShort(totalFund(vis)) + ' in funding blocked' +
+      ' \u00b7 ' + nloc + ' location' + (nloc === 1 ? '' : 's');
 
     PROG_ORDER.forEach(function(p){
-      var n = vis.filter(function(r){ return r.prog === p; }).length;
-      progEls[p].ct.textContent = n;
+      var rows = vis.filter(function(r){ return r.prog === p; });
+      progEls[p].ct.textContent = rows.length;
+      progEls[p].ct.title = moneyShort(totalFund(rows)) + ' blocked';
       progEls[p].label.classList.toggle('off', !progEls[p].box.checked);
     });
 
@@ -602,7 +609,8 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
       '<div class="code">' + esc(u.code) + ' &middot; ' + esc(regions[u.region] || u.region) + '</div>' +
       '<h3>' + esc(u.name) + '</h3>' +
       '<div class="meta">' + list.length + ' agreement' + (list.length===1?'':'s') + ' disapproved' +
-        (u.place ? ' &middot; mapped at ' + esc(u.place) : '') + '</div>';
+        ' &middot; ' + moneyShort(totalFund(list)) + ' blocked' +
+        (u.place ? '<br>mapped at ' + esc(u.place) : '') + '</div>';
     document.getElementById('dclose').addEventListener('click', function(){ sel = null; render(); });
 
     document.getElementById('dbody').innerHTML = list.map(function(r){
@@ -611,7 +619,7 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
         '<div class="who">' + esc(titleCase(r.recipient)) + '</div>' +
         '<div class="badges">' +
           '<span class="badge"><i style="background:' + PROG_COLOR[r.prog] + '"></i>' + esc(r.prog) + '</span>' +
-          (r.amt ? '<span class="badge">$' + r.amt.toLocaleString('en-US',{maximumFractionDigits:0}) + '</span>' : '') +
+          (r.fund != null ? '<span class="badge fund">Funding blocked ' + money(r.fund) + '</span>' : '') +
         '</div>' +
         '<details><summary>Description and impact</summary>' +
           '<div class="txt">' +
@@ -627,6 +635,21 @@ details.fold[open] > summary::before{transform:rotate(90deg)}
 
   /* ---------- helpers ---------- */
   function uniq(a){ return a.filter(function(v,i){ return a.indexOf(v)===i; }); }
+  /* Exact dollars on a single agreement; rounded millions once a total gets big
+     enough that the trailing digits are noise. */
+  function money(v){
+    if(v == null) return '';
+    return '$' + Math.round(v).toLocaleString('en-US');
+  }
+  function moneyShort(v){
+    if(v == null) return '';
+    if(v >= 1e6) return '$' + (v / 1e6).toFixed(1).replace(/\.0$/, '') + ' million';
+    if(v >= 1e4) return '$' + Math.round(v / 1e3) + ',000';
+    return money(v);
+  }
+  function totalFund(list){
+    return list.reduce(function(a, r){ return a + (r.fund || 0); }, 0);
+  }
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
       return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];

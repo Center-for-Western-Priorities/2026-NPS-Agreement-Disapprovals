@@ -22,7 +22,7 @@ LF line endings. One row per disapproved agreement request.
 | `project_abstract` | Description of the project, verbatim |
 | `project_impact` | What disapproval means for resources, public safety, or operations, verbatim |
 | `review_notes` | Submission review notes. Dated entries in standard DOI wording, showing the language used for disapprovals |
-| `amount_usd` | Dollar amount, where the review notes state one. Empty for 128 of the 133 rows. **Do not total this column** |
+| `fed_funding_this_action` | Federal funding the proposed action would have obligated, in dollars. Present for all 133 rows. This column totals to $25,947,857 |
 
 ## Notes on the text columns
 

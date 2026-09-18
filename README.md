@@ -18,6 +18,7 @@ redeploys on every push to `main`.
 ## What the map shows
 
 - **133 agreements** still carrying a disapproved status in the August 24, 2026 snapshot
+- **$25.9 million** in federal funding those agreements would have obligated
 - **61 locations** across **seven NPS regions**
 - **24 partner organizations**: universities, youth and veteran conservation corps,
   tribal organizations, and nonprofits
@@ -48,9 +49,14 @@ dataset: 133 rows, 19 columns, including coordinates and the full description an
 impact text for every agreement. Columns are documented in
 [docs/DATA-DICTIONARY.md](docs/DATA-DICTIONARY.md).
 
-Only five of the 133 records carry a dollar figure, and those appear inside free-text
-review notes rather than a funding column. There is no defensible funding total and
-none is shown.
+Every record carries the federal funding its action would have obligated, from a
+second FAST extract. The 133 mapped agreements total **$25,947,857**. The map shows
+that total in the footer, per location in the detail panel, and per agreement on a
+"Funding blocked" badge, and all three follow the filters.
+
+Ten IDs in the funding extract have no matching record in the disapprovals workbook
+and are excluded; they would add $4,995,244. See
+[docs/METHODOLOGY.md](docs/METHODOLOGY.md).
 
 ## Repository layout
 
