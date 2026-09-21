@@ -1,53 +1,38 @@
 <!--
   Center for Western Priorities
-  2026 NPS Agreement Disapprovals - WordPress embed snippet
+  2026 NPS Agreement Disapprovals — WordPress embed
 
-  Paste this into a Custom HTML block on the page where the map should appear.
-  Replace HOSTED_URL with the published URL of index.html.
+  Paste everything below into a Custom HTML block where the map should appear.
+  Nothing else is needed: no plugin, no JavaScript library, no API key. The map
+  is one self-contained file served over https.
 
-  The map is a single self-contained file, so it needs no plugin, no JavaScript
-  library, and no tile server. It only has to be reachable over https.
+  Height is set in CSS rather than measured at runtime. The map's layout fills
+  whatever frame it is given, so it can never report a content height of its
+  own; an auto-height script would only echo back the height it was handed, and
+  an early bad measurement would pin the frame to the wrong size. Two fixed
+  heights, switched by a media query, are both simpler and more reliable.
 
-  Two ways to size it:
-
-  1. Fixed height (simplest). Leave the snippet as is. The map fills the frame
-     and scrolls internally. 760px works on desktop; the media query below
-     gives phones more room because the layout stacks.
-
-  2. Auto height. Keep the small script at the bottom. The page posts its own
-     height to the parent frame and the script resizes the iframe to match.
-     This is what makes the stacked mobile layout sit flush with no inner
-     scrollbar. If your theme strips inline script tags, delete it and keep
-     option 1.
+  Adjust 760px and 1180px to taste. Below 900px the map stacks, the sidebar
+  collapses behind a Filters button, and it needs the extra room.
 -->
 
 <div class="cwp-embed">
   <iframe
-    id="cwp-nps-disapprovals"
-    src="HOSTED_URL"
-    title="2026 NPS Agreement Disapprovals - Center for Western Priorities"
+    src="https://center-for-western-priorities.github.io/2026-NPS-Agreement-Disapprovals/"
+    title="Map of National Park Service agreements disapproved by the Department of the Interior in August 2026"
     loading="lazy"
     scrolling="no"
     referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <p class="cwp-embed-note">
+    <a href="https://center-for-western-priorities.github.io/2026-NPS-Agreement-Disapprovals/"
+       target="_blank" rel="noopener">Open the map in a new tab</a>
+  </p>
 </div>
 
 <style>
 .cwp-embed{margin:0 0 1.5rem}
-.cwp-embed iframe{display:block;width:100%;height:760px;border:1px solid #e0ddd8;border-radius:4px;background:#f5f5f3}
+.cwp-embed iframe{display:block;width:100%;height:760px;
+  border:1px solid #e0ddd8;border-radius:4px;background:#f5f5f3}
+.cwp-embed-note{font-size:.85rem;line-height:1.4;margin:.5rem 0 0}
 @media (max-width:900px){ .cwp-embed iframe{height:1180px} }
 </style>
-
-<script>
-/* Auto height. Delete this block to use a fixed height instead. */
-(function () {
-  var frame = document.getElementById('cwp-nps-disapprovals');
-  if (!frame) return;
-  window.addEventListener('message', function (e) {
-    var d = e.data;
-    if (!d || d.type !== 'cwp:resize' || d.id !== 'nps-disapprovals') return;
-    if (e.source !== frame.contentWindow) return;
-    var h = parseInt(d.height, 10);
-    if (h > 300 && h < 6000) frame.style.height = h + 'px';
-  });
-})();
-</script>
