@@ -1130,13 +1130,50 @@ p.foldnote{font-family:'Open Sans',system-ui,sans-serif;font-size:12.5px;line-he
     hi:      [[18.8, -160.3], [22.3, -154.7]]
   };
   var allBounds = L.latLngBounds(units.filter(function(u){ return u.ll; }).map(function(u){ return u.ll; }));
-  function go(view, animate){
-    var b = view === 'all' ? allBounds : L.latLngBounds(VIEWS[view]);
+
+  /* The opening view has to survive a container that is still being laid out.
+     Embedded in an article this script can run before the frame has its final
+     size, and Leaflet caches whatever size it measured, so the map ends up
+     fitted to one viewport and drawn in another: the wrong zoom on load, which
+     a reload then "fixes" because the second time everything is already sized.
+
+     So: fit only once the box is big enough to be real, and keep re-fitting on
+     every size change until the reader touches the map. */
+  var autoFit = true, fitting = false;
+
+  function fitTo(b, animate){
+    var s = map.getSize();
+    if(s.x < 140 || s.y < 140) return false;   // the padding would exceed the box
+    fitting = true;
     map.fitBounds(b, { padding: [34, 34], animate: !!animate });
+    fitting = false;
+    return true;
   }
+  function go(view, animate){
+    return fitTo(view === 'all' ? allBounds : L.latLngBounds(VIEWS[view]), animate);
+  }
+
+  map.setView([44.5, -103.0], 3);   // a sane view in case the first fit is too early
   go('all', false);
+
+  /* Bound only after the opening view is set, so that setView above does not
+     read as the reader moving the map and switch the auto-fitting off. */
+  map.on('dragstart zoomstart', function(){ if(!fitting) autoFit = false; });
+
+  function settle(){
+    map.invalidateSize({ animate: false });
+    if(autoFit) go('all', false);
+  }
+  window.addEventListener('load', settle);
+  if(window.ResizeObserver) new ResizeObserver(settle).observe(document.getElementById('mapinner'));
+  /* Webfonts change the masthead height, which changes the map's height. */
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(settle).catch(function(){});
+
   Array.prototype.forEach.call(document.querySelectorAll('.regionjump button'), function(btn){
-    btn.addEventListener('click', function(){ go(btn.getAttribute('data-view'), true); });
+    btn.addEventListener('click', function(){
+      autoFit = false;                 // an explicit choice outranks the auto-fit
+      go(btn.getAttribute('data-view'), true);
+    });
   });
 
   /* ---------- wheel behaviour ----------------------------------------------
