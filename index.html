@@ -702,8 +702,6 @@ body{margin:0;background:var(--bg);color:var(--ink);
   display:flex;align-items:center;gap:12px}
 .mark{flex:0 0 auto;width:30px;height:30px;display:block}
 .bar h1{font-family:'Bitter',Georgia,serif;font-weight:700;font-size:17px;line-height:1.15;margin:0;color:#fff}
-.bar p{font-family:'Open Sans',system-ui,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.14em;
-  text-transform:uppercase;color:#a8b4ae;margin:3px 0 0}
 .bar .toggle{margin-left:auto;display:none;background:none;border:1px solid #3c4a46;border-radius:4px;
   color:#cfd6d2;font-size:15px;line-height:1;padding:8px 11px;cursor:pointer}
 
@@ -877,17 +875,21 @@ p.foldnote{font-family:'Open Sans',system-ui,sans-serif;font-size:12.5px;line-he
 @media (max-width:900px){
   .bar .toggle{display:block}
   html,body{height:auto}
-  .app{height:auto;min-height:100%}
+  /* 100vh, not 100%: with body at auto height a percentage has nothing to
+     resolve against, so the app stopped short of the frame and left a grey
+     band under the footer in a short embed. */
+  .app{height:auto;min-height:100vh}
   .split{flex-direction:column}
   .side{flex:0 0 auto;width:auto;border-right:0;border-bottom:1px solid var(--rule)}
   .side[hidden]{display:none}
-  .mapwrap{flex:0 0 auto}
+  /* Grow to absorb any slack so a short frame does not leave a dead grey band
+     under the footer; min-height keeps the map usable in a tall frame. */
+  .mapwrap{flex:1 1 auto;min-height:62vh}
   .mapinner{min-height:62vh}
   .detail{flex:0 0 auto;width:auto;border-left:0;border-top:1px solid var(--rule)}
   .dbody{overflow:visible}
 }
 @media (max-width:620px){
-  .bar p{display:none}
   .bar h1{font-size:15.5px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -907,10 +909,7 @@ p.foldnote{font-family:'Open Sans',system-ui,sans-serif;font-size:12.5px;line-he
       <path fill="#ffffff" d="M 60.093 68.406 L 60.480 69.449 L 55.156 75.031 Z M 55.406 64.445 L 55.546 64.812 L 53.667 66.785 Z M 54.246 63.082 L 54.312 64.707 L 48.335 72.371 Z M 39.890 75.292 L 43.921 68.406 L 45.089 68.863 Z M 60.105 67.882 L 59.320 68.125 L 54.335 61.976 L 48.832 69.449 L 43.718 67.519 L 37.164 78.605 L 65.613 78.605 Z M 60.105 67.882 "/>
       <path fill="#ffffff" d="M 23.265 59.363 L 26.640 59.363 L 26.640 53.363 L 29.832 53.363 L 29.832 59.363 L 38.269 59.363 L 38.269 50.453 L 40.144 50.453 L 36.406 46.714 L 36.406 43.234 L 34.707 43.234 L 34.707 45.015 L 30.863 41.171 L 21.582 50.453 L 23.265 50.453 Z M 23.265 59.363 "/>
       </svg>
-    <div>
-      <h1>2026 NPS Agreement Disapprovals</h1>
-      <p>Center for Western Priorities &middot; Park partnerships Interior turned down</p>
-    </div>
+    <h1>2026 NPS Agreement Disapprovals</h1>
     <button class="toggle" id="toggle" type="button" aria-expanded="true" aria-controls="side">Filters</button>
   </header>
 
